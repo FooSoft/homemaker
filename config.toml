@@ -13,30 +13,30 @@ force = false
     src = ".gitconfig"
 
 [profs.base]
-    [[profs.dev.links]]
+    [[profs.base.links]]
     src = ".config/fish"
 
-    [[profs.dev.links]]
+    [[profs.base.links]]
     src = ".config/keepassx"
 
-    [[profs.dev.links]]
+    [[profs.base.links]]
     src = ".filezilla"
 
-    [[profs.dev.links]]
+    [[profs.base.links]]
     src = "profsile"
 
 [profs.study]
-    [[profs.dev.links]]
+    [[profs.study.links]]
     src = "Anki"
 
-    [[profs.dev.links]]
+    [[profs.study.links]]
     src = ".yomichan.json"
 
 [profs.net]
-    [[profs.dev.links]]
+    [[profs.net.links]]
     src = ".filezilla"
 
-    [[profs.dev.links]]
+    [[profs.net.links]]
     src = ".s3cfg"
 
 [profs.flatline]
@@ -44,11 +44,11 @@ force = false
     stomp = true
     force = true
 
-    [[profs.dev.links]]
+    [[profs.flatline.links]]
     src = ".ssh_flatline"
     dst = ".ssh"
 
-    [[profs.dev.links]]
+    [[profs.flatline.links]]
     src = ".config/syncthing_flatline"
     dst = ".config/syncthing"
 
@@ -57,6 +57,6 @@ force = false
     stomp = true
     force = true
 
-    [[profs.dev.links]]
+    [[profs.wintermute.links]]
     src = ".ssh_wintermute"
     dst = ".ssh"

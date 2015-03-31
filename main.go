@@ -26,7 +26,6 @@ import (
 	"github.com/naoina/toml"
 	"io/ioutil"
 	"log"
-	"os"
 )
 
 type link struct {
@@ -49,22 +48,29 @@ type config struct {
 	Stomp bool
 }
 
+func parse(filename string) (*config, error) {
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	conf := &config{}
+	if err := toml.Unmarshal(bytes, &conf); err != nil {
+		return nil, err
+	}
+
+	return conf, nil
+}
+
+func process(src, dst string) error {
+	return nil
+}
+
 func main() {
-	f, err := os.Open("config.toml")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-
-	buff, err := ioutil.ReadAll(f)
+	conf, err := parse("config.toml")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var conf config
-	if err := toml.Unmarshal(buff, &conf); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Print(conf.Profs["dev"])
+	log.Print(conf)
 }
