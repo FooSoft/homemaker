@@ -1,0 +1,59 @@
+stomp = true
+force = true
+
+[home.dev]
+    [[links]]
+    src = "vim/.vimrc"
+    dst = ".vimrc"
+
+    [[links]]
+    src = "vim/.vim"
+    dst = ".vim"
+
+    [[links]]
+    src = ".gitconfig"
+
+[home.base]
+    [[links]]
+    src = ".config/fish"
+
+    [[links]]
+    src = ".config/keepassx"
+
+    [[links]]
+    src = ".filezilla"
+
+    [[links]]
+    src = "profile"
+
+[home.study]
+    [[links]]
+    src = "Anki"
+
+    [[links]]
+    src = ".yomichan.json"
+
+[home.net]
+    [[links]]
+    src = ".filezilla"
+
+    [[links]]
+    src = ".s3cfg"
+
+[[flatline]]
+    deps = ["base", "dev", "study", "net"]
+
+    [[links]]
+    src = ".ssh_flatline"
+    dst = ".ssh"
+
+    [[links]]
+    src = ".config/syncthing_flatline"
+    dst = ".config/syncthing"
+
+[[wintermute]]
+    deps = ["base", "dev", "study"]
+
+    [[links]]
+    src = ".ssh_wintermute"
+    dst = ".ssh"
