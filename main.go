@@ -62,6 +62,10 @@ func parse(filename string) (*config, error) {
 	return conf, nil
 }
 
+func (conf *config) prepare() {
+
+}
+
 func process(src, dst string) error {
 	return nil
 }
@@ -69,6 +73,12 @@ func process(src, dst string) error {
 func main() {
 	conf, err := parse("config.toml")
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	conf.prepare()
+
+	if err := process("/mnt/storage/sync/Dropbox", "/mnt/storage/projects/blah"); err != nil {
 		log.Fatal(err)
 	}
 
