@@ -1,59 +1,62 @@
-stomp = true
-force = true
+force = false
 
-[home.dev]
-    [[links]]
+[profs.dev]
+    [[profs.dev.links]]
     src = "vim/.vimrc"
     dst = ".vimrc"
 
-    [[links]]
+    [[profs.dev.links]]
     src = "vim/.vim"
     dst = ".vim"
 
-    [[links]]
+    [[profs.dev.links]]
     src = ".gitconfig"
 
-[home.base]
-    [[links]]
+[profs.base]
+    [[profs.dev.links]]
     src = ".config/fish"
 
-    [[links]]
+    [[profs.dev.links]]
     src = ".config/keepassx"
 
-    [[links]]
+    [[profs.dev.links]]
     src = ".filezilla"
 
-    [[links]]
-    src = "profile"
+    [[profs.dev.links]]
+    src = "profsile"
 
-[home.study]
-    [[links]]
+[profs.study]
+    [[profs.dev.links]]
     src = "Anki"
 
-    [[links]]
+    [[profs.dev.links]]
     src = ".yomichan.json"
 
-[home.net]
-    [[links]]
+[profs.net]
+    [[profs.dev.links]]
     src = ".filezilla"
 
-    [[links]]
+    [[profs.dev.links]]
     src = ".s3cfg"
 
-[[flatline]]
+[profs.flatline]
     deps = ["base", "dev", "study", "net"]
+    stomp = true
+    force = true
 
-    [[links]]
+    [[profs.dev.links]]
     src = ".ssh_flatline"
     dst = ".ssh"
 
-    [[links]]
+    [[profs.dev.links]]
     src = ".config/syncthing_flatline"
     dst = ".config/syncthing"
 
-[[wintermute]]
+[profs.wintermute]
     deps = ["base", "dev", "study"]
+    stomp = true
+    force = true
 
-    [[links]]
+    [[profs.dev.links]]
     src = ".ssh_wintermute"
     dst = ".ssh"

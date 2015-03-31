@@ -22,6 +22,49 @@
 
 package main
 
-func main() {
+import (
+	"github.com/naoina/toml"
+	"io/ioutil"
+	"log"
+	"os"
+)
 
+type link struct {
+	Dst   string
+	Force bool
+	Src   string
+	Stomp bool
+}
+
+type profile struct {
+	Deps  []string
+	Force bool
+	Links []link
+	Stomp bool
+}
+
+type config struct {
+	Force bool
+	Profs map[string]profile
+	Stomp bool
+}
+
+func main() {
+	f, err := os.Open("config.toml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	buff, err := ioutil.ReadAll(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var conf config
+	if err := toml.Unmarshal(buff, &conf); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Print(conf.Profs["dev"])
 }
