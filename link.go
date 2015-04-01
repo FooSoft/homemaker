@@ -22,11 +22,71 @@
 
 package main
 
+import (
+	"errors"
+	"fmt"
+	"log"
+	"os"
+	"path"
+)
+
 type link struct {
 	Dst string
 	Src string
 }
 
-func (this link) process(src, dst string) error {
+func preparePath(loc string, force, clobber bool) error {
+	if force {
+		parentDir, _ := path.Split(loc)
+		if _, err := os.Stat(parentDir); os.IsNotExist(err) {
+			log.Printf("Force creating path: '%s'", parentDir)
+			if err := os.MkdirAll(parentDir, 0777); err != nil {
+				return err
+			}
+		}
+	}
+
+	if info, _ := os.Lstat(loc); info != nil {
+		if info.Mode()&os.ModeSymlink == os.ModeSymlink {
+			log.Printf("Removing symlink: '%s'", loc)
+			if err := os.Remove(loc); err != nil {
+				return err
+			}
+		} else if clobber {
+			log.Print("Clobbering path: '%s'", loc)
+			if err := os.RemoveAll(loc); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
+}
+
+func (this link) process(srcDir, dstDir string) error {
+	if len(this.Dst) == 0 {
+		this.Dst = this.Src
+	}
+
+	srcPath := path.Join(srcDir, this.Src)
+	dstPath := path.Join(dstDir, this.Dst)
+
+	if !path.IsAbs(dstPath) {
+		return errors.New(fmt.Sprintf("Destination path is not absolute: '%s'", dstPath))
+	}
+
+	if !path.IsAbs(srcPath) {
+		return errors.New(fmt.Sprintf("Source path is not absolute: '%s'", srcPath))
+	}
+
+	if _, err := os.Stat(srcPath); os.IsNotExist(err) {
+		return errors.New(fmt.Sprintf("Source path does not exist in filesystem: '%s'", srcPath))
+	}
+
+	if err := preparePath(dstPath, true, true); err != nil {
+		return err
+	}
+
+	log.Printf("Linking: '%s' => '%s'", srcPath, dstPath)
+	return os.Symlink(srcPath, dstPath)
 }

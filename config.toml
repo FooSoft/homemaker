@@ -1,13 +1,5 @@
 [profs.dev]
     [[profs.dev.links]]
-    src = "vim/.vimrc"
-    dst = ".vimrc"
-
-    [[profs.dev.links]]
-    src = "vim/.vim"
-    dst = ".vim"
-
-    [[profs.dev.links]]
     src = ".gitconfig"
 
 [profs.base]
@@ -21,7 +13,7 @@
     src = ".filezilla"
 
     [[profs.base.links]]
-    src = "profsile"
+    src = "profile"
 
 [profs.study]
     [[profs.study.links]]

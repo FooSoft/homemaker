@@ -51,6 +51,4 @@ func main() {
 	if err := conf.process("flatline", "/mnt/storage/sync/Dropbox", "/mnt/storage/projects/blah"); err != nil {
 		log.Fatal(err)
 	}
-
-	log.Print(conf)
 }

@@ -28,11 +28,11 @@ type config struct {
 	Profs map[string]profile
 }
 
-func (this config) process(name, src, dst string) error {
+func (this config) process(name, srcDir, dstDir string) error {
 	prof, ok := this.Profs[name]
 	if !ok {
 		return errors.New("Profile not found")
 	}
 
-	return prof.process(src, dst, this)
+	return prof.process(srcDir, dstDir, this)
 }

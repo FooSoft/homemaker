@@ -29,14 +29,20 @@ type profile struct {
 	Links []link
 }
 
-func (this profile) process(src, dst string, conf config) error {
+func (this profile) process(srcDir, dstDir string, conf config) error {
 	for _, name := range this.Deps {
 		prof, ok := conf.Profs[name]
 		if !ok {
 			return errors.New("Profile dependency not found")
 		}
 
-		if err := prof.process(src, dst, conf); err != nil {
+		if err := prof.process(srcDir, dstDir, conf); err != nil {
+			return err
+		}
+	}
+
+	for _, link := range this.Links {
+		if err := link.process(srcDir, dstDir); err != nil {
 			return err
 		}
 	}
