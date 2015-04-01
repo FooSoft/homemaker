@@ -1,5 +1,3 @@
-force = false
-
 [profs.dev]
     [[profs.dev.links]]
     src = "vim/.vimrc"
@@ -41,8 +39,6 @@ force = false
 
 [profs.flatline]
     deps = ["base", "dev", "study", "net"]
-    stomp = true
-    force = true
 
     [[profs.flatline.links]]
     src = ".ssh_flatline"
@@ -54,8 +50,6 @@ force = false
 
 [profs.wintermute]
     deps = ["base", "dev", "study"]
-    stomp = true
-    force = true
 
     [[profs.wintermute.links]]
     src = ".ssh_wintermute"

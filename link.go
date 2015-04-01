@@ -22,35 +22,11 @@
 
 package main
 
-import (
-	"github.com/naoina/toml"
-	"io/ioutil"
-	"log"
-)
-
-func parse(filename string) (*config, error) {
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	conf := &config{}
-	if err := toml.Unmarshal(bytes, &conf); err != nil {
-		return nil, err
-	}
-
-	return conf, nil
+type link struct {
+	Dst string
+	Src string
 }
 
-func main() {
-	conf, err := parse("config.toml")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := conf.process("flatline", "/mnt/storage/sync/Dropbox", "/mnt/storage/projects/blah"); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Print(conf)
+func (this link) process(src, dst string) error {
+	return nil
 }

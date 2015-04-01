@@ -22,35 +22,17 @@
 
 package main
 
-import (
-	"github.com/naoina/toml"
-	"io/ioutil"
-	"log"
-)
+import "errors"
 
-func parse(filename string) (*config, error) {
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	conf := &config{}
-	if err := toml.Unmarshal(bytes, &conf); err != nil {
-		return nil, err
-	}
-
-	return conf, nil
+type config struct {
+	Profs map[string]profile
 }
 
-func main() {
-	conf, err := parse("config.toml")
-	if err != nil {
-		log.Fatal(err)
+func (this config) process(name, src, dst string) error {
+	prof, ok := this.Profs[name]
+	if !ok {
+		return errors.New("Profile not found")
 	}
 
-	if err := conf.process("flatline", "/mnt/storage/sync/Dropbox", "/mnt/storage/projects/blah"); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Print(conf)
+	return prof.process(src, dst, this)
 }

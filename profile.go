@@ -22,35 +22,24 @@
 
 package main
 
-import (
-	"github.com/naoina/toml"
-	"io/ioutil"
-	"log"
-)
+import "errors"
 
-func parse(filename string) (*config, error) {
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	conf := &config{}
-	if err := toml.Unmarshal(bytes, &conf); err != nil {
-		return nil, err
-	}
-
-	return conf, nil
+type profile struct {
+	Deps  []string
+	Links []link
 }
 
-func main() {
-	conf, err := parse("config.toml")
-	if err != nil {
-		log.Fatal(err)
+func (this profile) process(src, dst string, conf config) error {
+	for _, name := range this.Deps {
+		prof, ok := conf.Profs[name]
+		if !ok {
+			return errors.New("Profile dependency not found")
+		}
+
+		if err := prof.process(src, dst, conf); err != nil {
+			return err
+		}
 	}
 
-	if err := conf.process("flatline", "/mnt/storage/sync/Dropbox", "/mnt/storage/projects/blah"); err != nil {
-		log.Fatal(err)
-	}
-
-	log.Print(conf)
+	return nil
 }
