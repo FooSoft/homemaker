@@ -23,7 +23,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -72,15 +71,15 @@ func (this link) process(srcDir, dstDir string) error {
 	dstPath := path.Join(dstDir, this.Dst)
 
 	if !path.IsAbs(dstPath) {
-		return errors.New(fmt.Sprintf("Destination path is not absolute: '%s'", dstPath))
+		return fmt.Errorf("Destination path is not absolute: '%s'", dstPath)
 	}
 
 	if !path.IsAbs(srcPath) {
-		return errors.New(fmt.Sprintf("Source path is not absolute: '%s'", srcPath))
+		return fmt.Errorf("Source path is not absolute: '%s'", srcPath)
 	}
 
 	if _, err := os.Stat(srcPath); os.IsNotExist(err) {
-		return errors.New(fmt.Sprintf("Source path does not exist in filesystem: '%s'", srcPath))
+		return fmt.Errorf("Source path does not exist in filesystem: '%s'", srcPath)
 	}
 
 	if err := preparePath(dstPath, true, true); err != nil {

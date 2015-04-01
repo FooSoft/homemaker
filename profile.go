@@ -22,7 +22,7 @@
 
 package main
 
-import "errors"
+import "fmt"
 
 type profile struct {
 	Deps  []string
@@ -33,7 +33,7 @@ func (this profile) process(srcDir, dstDir string, conf config) error {
 	for _, name := range this.Deps {
 		prof, ok := conf.Profs[name]
 		if !ok {
-			return errors.New("Profile dependency not found")
+			return fmt.Errorf("Profile dependency not found: '%s'", name)
 		}
 
 		if err := prof.process(srcDir, dstDir, conf); err != nil {

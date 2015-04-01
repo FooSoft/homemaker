@@ -22,7 +22,7 @@
 
 package main
 
-import "errors"
+import "fmt"
 
 type config struct {
 	Profs map[string]profile
@@ -31,7 +31,7 @@ type config struct {
 func (this config) process(name, srcDir, dstDir string) error {
 	prof, ok := this.Profs[name]
 	if !ok {
-		return errors.New("Profile not found")
+		return fmt.Errorf("Profile not found: '%s'", name)
 	}
 
 	return prof.process(srcDir, dstDir, this)
