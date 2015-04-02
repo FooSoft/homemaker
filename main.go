@@ -24,10 +24,19 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/naoina/toml"
 	"io/ioutil"
 	"log"
+	"os"
 	"os/user"
+	"path"
+)
+
+const (
+	optClobber = 1 << 0
+	optForce   = 1 << 1
+	optVerbose = 1 << 2
 )
 
 func parse(filename string) (*config, error) {
@@ -44,12 +53,11 @@ func parse(filename string) (*config, error) {
 	return conf, nil
 }
 
-func install(conf config, name, target, source string, force, clobber bool) error {
-	return nil
-}
-
-func uninstall(conf config, name, target string, force, clobber bool) error {
-	return nil
+func printUsageAndExit() {
+	_, executable := path.Split(os.Args[0])
+	fmt.Errorf("Usage: %s [options] config_file [target_path]", executable)
+	flag.PrintDefaults()
+	os.Exit(1)
 }
 
 func main() {
@@ -58,28 +66,49 @@ func main() {
 		log.Fatal(err)
 	}
 
+	taskName := flag.String("task", "default", "name of task to execute")
 	action := flag.String("action", "install", "'install' or 'uninstall' symlinks")
+	dstDir := flag.String("target", currUsr.HomeDir, "target directory for symlinks")
+	force := flag.Bool("force", true, "create parent directories to target")
 	clobber := flag.Bool("clobber", false, "delete files and directories at target")
-	force := flag.Bool("force", true, "force creation of parent directories for target")
-	profile := flag.String("profile", "default", "name of profile to execute")
-	target := flag.String("target", currUsr.HomeDir, "target directory for symlinks")
+	verbose := flag.Bool("verbose", false, "verbose output")
 
 	flag.Parse()
 
-	confPath := flag.Arg(0)
-	source := flag.Arg(1)
+	flags := 0
+	if *clobber {
+		flags |= optClobber
+	}
+	if *force {
+		flags |= optForce
+	}
+	if *verbose {
+		flags |= optVerbose
+	}
 
-	conf, err := parse(confPath)
+	if flag.NArg() == 0 {
+		printUsageAndExit()
+	}
+
+	conf, err := parse(flag.Arg(0))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	switch *action {
 	case "install":
-		install(*conf, *profile, *target, source, *force, *clobber)
+		if flag.NArg() >= 2 {
+			if err := conf.install(flag.Arg(1), *dstDir, *taskName, flags); err != nil {
+				log.Fatal(err)
+			}
+		} else {
+			printUsageAndExit()
+		}
 	case "uninstall":
-		uninstall(*conf, *profile, *target, *force, *clobber)
+		if err := conf.uninstall(*dstDir, *taskName, flags); err != nil {
+			log.Fatal(err)
+		}
 	default:
-		log.Fatalf("Unrecognized action: '%s'", action)
+		printUsageAndExit()
 	}
 }

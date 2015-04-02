@@ -29,14 +29,14 @@ type task struct {
 	Links []link
 }
 
-func (this task) install(srcDir, dstDir string, conf config) error {
-	for _, name := range this.Deps {
-		depTask, ok := conf.Tasks[name]
+func (this task) install(srcDir, dstDir string, conf *config, flags int) error {
+	for _, depName := range this.Deps {
+		depTask, ok := conf.Tasks[depName]
 		if !ok {
-			return fmt.Errorf("Task dependency not found: '%s'", name)
+			return fmt.Errorf("Task dependency not found: '%s'", depName)
 		}
 
-		if err := depTask.install(srcDir, dstDir, conf); err != nil {
+		if err := depTask.install(srcDir, dstDir, conf, flags); err != nil {
 			return err
 		}
 	}

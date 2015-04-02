@@ -28,11 +28,15 @@ type config struct {
 	Tasks map[string]task
 }
 
-func (this config) install(name, srcDir, dstDir string) error {
-	task, ok := this.Tasks[name]
+func (this *config) install(srcDir, dstDir, taskName string, flags int) error {
+	task, ok := this.Tasks[taskName]
 	if !ok {
-		return fmt.Errorf("Profile not found: '%s'", name)
+		return fmt.Errorf("Profile not found: '%s'", taskName)
 	}
 
-	return task.install(srcDir, dstDir, this)
+	return task.install(srcDir, dstDir, this, flags)
+}
+
+func (this *config) uninstall(dstDir, taskName string, flags int) error {
+	return nil
 }
