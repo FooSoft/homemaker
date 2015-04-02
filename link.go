@@ -34,22 +34,8 @@ type link struct {
 	Src string
 }
 
-func preparePath(loc string, flags int) error {
-	clobber := flags&optClobber == optClobber
-	force := flags&optForce == optForce
+func cleanPath(loc string, flags int) error {
 	verbose := flags&optVerbose == optVerbose
-
-	if force {
-		parentDir, _ := path.Split(loc)
-		if _, err := os.Stat(parentDir); os.IsNotExist(err) {
-			if verbose {
-				log.Printf("Force creating path: '%s'", parentDir)
-			}
-			if err := os.MkdirAll(parentDir, 0777); err != nil {
-				return err
-			}
-		}
-	}
 
 	if info, _ := os.Lstat(loc); info != nil {
 		if info.Mode()&os.ModeSymlink == os.ModeSymlink {
@@ -59,7 +45,7 @@ func preparePath(loc string, flags int) error {
 			if err := os.Remove(loc); err != nil {
 				return err
 			}
-		} else if clobber {
+		} else if flags&optClobber == optClobber {
 			if verbose {
 				log.Print("Clobbering path: '%s'", loc)
 			}
@@ -70,6 +56,22 @@ func preparePath(loc string, flags int) error {
 	}
 
 	return nil
+}
+
+func prepInstallPath(loc string, flags int) error {
+	if flags&optForce == optForce {
+		parentDir, _ := path.Split(loc)
+		if _, err := os.Stat(parentDir); os.IsNotExist(err) {
+			if flags&optVerbose == optVerbose {
+				log.Printf("Force creating path: '%s'", parentDir)
+			}
+			if err := os.MkdirAll(parentDir, 0777); err != nil {
+				return err
+			}
+		}
+	}
+
+	return cleanPath(loc, flags)
 }
 
 func (this link) install(srcDir, dstDir string, flags int) error {
@@ -84,7 +86,7 @@ func (this link) install(srcDir, dstDir string, flags int) error {
 		return fmt.Errorf("Source path does not exist in filesystem: '%s'", srcPath)
 	}
 
-	if err := preparePath(dstPath, flags); err != nil {
+	if err := prepInstallPath(dstPath, flags); err != nil {
 		return err
 	}
 
@@ -93,4 +95,12 @@ func (this link) install(srcDir, dstDir string, flags int) error {
 	}
 
 	return os.Symlink(srcPath, dstPath)
+}
+
+func (this *link) uninstall(dstDir string, flags int) error {
+	if len(this.Dst) == 0 {
+		this.Dst = this.Src
+	}
+
+	return cleanPath(path.Join(dstDir, this.Dst), flags)
 }

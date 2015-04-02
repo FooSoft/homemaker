@@ -38,5 +38,10 @@ func (this *config) install(srcDir, dstDir, taskName string, flags int) error {
 }
 
 func (this *config) uninstall(dstDir, taskName string, flags int) error {
-	return nil
+	task, ok := this.Tasks[taskName]
+	if !ok {
+		return fmt.Errorf("Task not found: '%s'", taskName)
+	}
+
+	return task.uninstall(dstDir, this, flags)
 }

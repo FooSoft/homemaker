@@ -29,23 +29,47 @@ type task struct {
 	Links []link
 }
 
-func (this task) install(srcDir, dstDir string, conf *config, flags int) error {
+func (this *task) walk(conf *config, depFunc func(depTask *task) error, linkFunc func(currLink *link) error) error {
 	for _, depName := range this.Deps {
 		depTask, ok := conf.Tasks[depName]
 		if !ok {
 			return fmt.Errorf("Task dependency not found: '%s'", depName)
 		}
 
-		if err := depTask.install(srcDir, dstDir, conf, flags); err != nil {
+		if err := depFunc(&depTask); err != nil {
 			return err
 		}
 	}
 
-	for _, link := range this.Links {
-		if err := link.install(srcDir, dstDir, flags); err != nil {
+	for _, currLink := range this.Links {
+		if err := linkFunc(&currLink); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (this *task) install(srcDir, dstDir string, conf *config, flags int) error {
+	depWalker := func(depTask *task) error {
+		return depTask.install(srcDir, dstDir, conf, flags)
+	}
+
+	linkWalker := func(currLink *link) error {
+		return currLink.install(srcDir, dstDir, flags)
+	}
+
+	return this.walk(conf, depWalker, linkWalker)
+}
+
+func (this *task) uninstall(dstDir string, conf *config, flags int) error {
+	depWalker := func(depTask *task) error {
+		return depTask.uninstall(dstDir, conf, flags)
+	}
+
+	linkWalker := func(currLink *link) error {
+		return currLink.uninstall(dstDir, flags)
+	}
+
+	return this.walk(conf, depWalker, linkWalker)
 }
