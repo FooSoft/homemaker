@@ -50,15 +50,15 @@ func parse(filename string) (*config, error) {
 
 	conf := &config{}
 	switch path.Ext(filename) {
-	case "json":
+	case ".json":
 		if err := json.Unmarshal(bytes, &conf); err != nil {
 			return nil, err
 		}
-	case "toml":
+	case ".toml":
 		if err := toml.Unmarshal(bytes, &conf); err != nil {
 			return nil, err
 		}
-	case "yaml":
+	case ".yaml":
 		if err := yaml.Unmarshal(bytes, &conf); err != nil {
 			return nil, err
 		}
