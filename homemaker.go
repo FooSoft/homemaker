@@ -71,7 +71,7 @@ func parse(filename string) (*config, error) {
 
 func fatalUsage() {
 	_, executable := path.Split(os.Args[0])
-	fmt.Printf("Usage: %s [options] config_file [source_dir]\n", executable)
+	fmt.Printf("Usage: %s [options] conf_file [src_dir]\n\n", executable)
 	flag.PrintDefaults()
 	os.Exit(1)
 }
