@@ -56,7 +56,7 @@ func parse(filename string) (*config, error) {
 
 func fatalUsage() {
 	_, executable := path.Split(os.Args[0])
-	fmt.Printf("Usage: %s [options] config_file [target_path]\n", executable)
+	fmt.Printf("Usage: %s [options] config_file [source_dir]\n", executable)
 	flag.PrintDefaults()
 	os.Exit(1)
 }
@@ -78,7 +78,7 @@ func main() {
 
 	taskName := flag.String("task", "default", "name of task to execute")
 	action := flag.String("action", "install", "'install' or 'uninstall' symlinks")
-	dstDir := flag.String("target", currUsr.HomeDir, "target directory for symlinks")
+	dstDir := flag.String("dest", currUsr.HomeDir, "target directory for symlinks")
 	force := flag.Bool("force", true, "create parent directories to target")
 	clobber := flag.Bool("clobber", false, "delete files and directories at target")
 	verbose := flag.Bool("verbose", false, "verbose output")

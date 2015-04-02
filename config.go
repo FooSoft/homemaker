@@ -31,7 +31,7 @@ type config struct {
 func (this *config) install(srcDir, dstDir, taskName string, flags int) error {
 	task, ok := this.Tasks[taskName]
 	if !ok {
-		return fmt.Errorf("Profile not found: '%s'", taskName)
+		return fmt.Errorf("Task not found: '%s'", taskName)
 	}
 
 	return task.install(srcDir, dstDir, this, flags)
