@@ -29,11 +29,6 @@ import (
 	"path"
 )
 
-type link struct {
-	Dst string
-	Src string
-}
-
 func cleanPath(loc string, flags int) error {
 	verbose := flags&optVerbose == optVerbose
 
@@ -74,13 +69,34 @@ func prepInstallPath(loc string, flags int) error {
 	return cleanPath(loc, flags)
 }
 
-func (this link) install(srcDir, dstDir string, flags int) error {
-	if len(this.Dst) == 0 {
-		this.Dst = this.Src
+func (this *link) source() string {
+	if len(*this) > 0 {
+		return (*this)[0]
 	}
 
-	srcPath := path.Join(srcDir, this.Src)
-	dstPath := path.Join(dstDir, this.Dst)
+	return ""
+}
+
+func (this *link) destination() string {
+	if len(*this) > 1 {
+		return (*this)[1]
+	}
+
+	return this.source()
+}
+
+func (this *link) valid() bool {
+	length := len(*this)
+	return length >= 1 && length <= 2
+}
+
+func (this *link) install(srcDir, dstDir string, flags int) error {
+	if !this.valid() {
+		return fmt.Errorf("Link element is invalid")
+	}
+
+	srcPath := path.Join(srcDir, this.source())
+	dstPath := path.Join(dstDir, this.destination())
 
 	if _, err := os.Stat(srcPath); os.IsNotExist(err) {
 		return fmt.Errorf("Source path does not exist in filesystem: '%s'", srcPath)
@@ -98,9 +114,9 @@ func (this link) install(srcDir, dstDir string, flags int) error {
 }
 
 func (this *link) uninstall(dstDir string, flags int) error {
-	if len(this.Dst) == 0 {
-		this.Dst = this.Src
+	if !this.valid() {
+		return fmt.Errorf("Link element is invalid")
 	}
 
-	return cleanPath(path.Join(dstDir, this.Dst), flags)
+	return cleanPath(path.Join(dstDir, this.destination()), flags)
 }

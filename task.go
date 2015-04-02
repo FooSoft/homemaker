@@ -24,6 +24,8 @@ package main
 
 import "fmt"
 
+type link []string
+
 type task struct {
 	Deps  []string
 	Links []link
