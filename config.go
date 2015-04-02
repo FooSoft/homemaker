@@ -25,14 +25,14 @@ package main
 import "fmt"
 
 type config struct {
-	Profs map[string]profile
+	Tasks map[string]task
 }
 
-func (this config) process(name, srcDir, dstDir string) error {
-	prof, ok := this.Profs[name]
+func (this config) install(name, srcDir, dstDir string) error {
+	task, ok := this.Tasks[name]
 	if !ok {
 		return fmt.Errorf("Profile not found: '%s'", name)
 	}
 
-	return prof.process(srcDir, dstDir, this)
+	return task.install(srcDir, dstDir, this)
 }

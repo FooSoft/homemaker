@@ -62,7 +62,7 @@ func preparePath(loc string, force, clobber bool) error {
 	return nil
 }
 
-func (this link) process(srcDir, dstDir string) error {
+func (this link) install(srcDir, dstDir string) error {
 	if len(this.Dst) == 0 {
 		this.Dst = this.Src
 	}

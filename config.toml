@@ -1,48 +1,48 @@
-[profs.dev]
-    [[profs.dev.links]]
+[tasks.dev]
+    [[tasks.dev.links]]
     src = ".gitconfig"
 
-[profs.base]
-    [[profs.base.links]]
+[tasks.base]
+    [[tasks.base.links]]
     src = ".config/fish"
 
-    [[profs.base.links]]
+    [[tasks.base.links]]
     src = ".config/keepassx"
 
-    [[profs.base.links]]
+    [[tasks.base.links]]
     src = ".filezilla"
 
-    [[profs.base.links]]
+    [[tasks.base.links]]
     src = "profile"
 
-[profs.study]
-    [[profs.study.links]]
+[tasks.study]
+    [[tasks.study.links]]
     src = "Anki"
 
-    [[profs.study.links]]
+    [[tasks.study.links]]
     src = ".yomichan.json"
 
-[profs.net]
-    [[profs.net.links]]
+[tasks.net]
+    [[tasks.net.links]]
     src = ".filezilla"
 
-    [[profs.net.links]]
+    [[tasks.net.links]]
     src = ".s3cfg"
 
-[profs.flatline]
+[tasks.flatline]
     deps = ["base", "dev", "study", "net"]
 
-    [[profs.flatline.links]]
+    [[tasks.flatline.links]]
     src = ".ssh_flatline"
     dst = ".ssh"
 
-    [[profs.flatline.links]]
+    [[tasks.flatline.links]]
     src = ".config/syncthing_flatline"
     dst = ".config/syncthing"
 
-[profs.wintermute]
+[tasks.wintermute]
     deps = ["base", "dev", "study"]
 
-    [[profs.wintermute.links]]
+    [[tasks.wintermute.links]]
     src = ".ssh_wintermute"
     dst = ".ssh"

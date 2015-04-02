@@ -24,25 +24,25 @@ package main
 
 import "fmt"
 
-type profile struct {
+type task struct {
 	Deps  []string
 	Links []link
 }
 
-func (this profile) process(srcDir, dstDir string, conf config) error {
+func (this task) install(srcDir, dstDir string, conf config) error {
 	for _, name := range this.Deps {
-		prof, ok := conf.Profs[name]
+		depTask, ok := conf.Tasks[name]
 		if !ok {
-			return fmt.Errorf("Profile dependency not found: '%s'", name)
+			return fmt.Errorf("Task dependency not found: '%s'", name)
 		}
 
-		if err := prof.process(srcDir, dstDir, conf); err != nil {
+		if err := depTask.install(srcDir, dstDir, conf); err != nil {
 			return err
 		}
 	}
 
 	for _, link := range this.Links {
-		if err := link.process(srcDir, dstDir); err != nil {
+		if err := link.install(srcDir, dstDir); err != nil {
 			return err
 		}
 	}
