@@ -31,6 +31,7 @@ import (
 	"os"
 	"os/user"
 	"path"
+	"path/filepath"
 )
 
 const (
@@ -53,16 +54,25 @@ func parse(filename string) (*config, error) {
 	return conf, nil
 }
 
-func printUsageAndExit() {
+func fatalUsage() {
 	_, executable := path.Split(os.Args[0])
-	fmt.Errorf("Usage: %s [options] config_file [target_path]", executable)
+	fmt.Printf("Usage: %s [options] config_file [target_path]\n", executable)
 	flag.PrintDefaults()
 	os.Exit(1)
 }
 
+func absPath(path string) string {
+	path, err := filepath.Abs(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return path
+}
+
 func main() {
 	currUsr, err := user.Current()
-	if err == nil {
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -87,7 +97,7 @@ func main() {
 	}
 
 	if flag.NArg() == 0 {
-		printUsageAndExit()
+		fatalUsage()
 	}
 
 	conf, err := parse(flag.Arg(0))
@@ -98,17 +108,17 @@ func main() {
 	switch *action {
 	case "install":
 		if flag.NArg() >= 2 {
-			if err := conf.install(flag.Arg(1), *dstDir, *taskName, flags); err != nil {
+			if err := conf.install(absPath(flag.Arg(1)), absPath(*dstDir), *taskName, flags); err != nil {
 				log.Fatal(err)
 			}
 		} else {
-			printUsageAndExit()
+			fatalUsage()
 		}
 	case "uninstall":
-		if err := conf.uninstall(*dstDir, *taskName, flags); err != nil {
+		if err := conf.uninstall(absPath(*dstDir), *taskName, flags); err != nil {
 			log.Fatal(err)
 		}
 	default:
-		printUsageAndExit()
+		fatalUsage()
 	}
 }

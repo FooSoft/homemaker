@@ -42,7 +42,7 @@ func (this task) install(srcDir, dstDir string, conf *config, flags int) error {
 	}
 
 	for _, link := range this.Links {
-		if err := link.install(srcDir, dstDir); err != nil {
+		if err := link.install(srcDir, dstDir, flags); err != nil {
 			return err
 		}
 	}

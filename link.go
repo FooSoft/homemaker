@@ -34,11 +34,17 @@ type link struct {
 	Src string
 }
 
-func preparePath(loc string, force, clobber bool) error {
+func preparePath(loc string, flags int) error {
+	clobber := flags&optClobber == optClobber
+	force := flags&optForce == optForce
+	verbose := flags&optVerbose == optVerbose
+
 	if force {
 		parentDir, _ := path.Split(loc)
 		if _, err := os.Stat(parentDir); os.IsNotExist(err) {
-			log.Printf("Force creating path: '%s'", parentDir)
+			if verbose {
+				log.Printf("Force creating path: '%s'", parentDir)
+			}
 			if err := os.MkdirAll(parentDir, 0777); err != nil {
 				return err
 			}
@@ -47,12 +53,16 @@ func preparePath(loc string, force, clobber bool) error {
 
 	if info, _ := os.Lstat(loc); info != nil {
 		if info.Mode()&os.ModeSymlink == os.ModeSymlink {
-			log.Printf("Removing symlink: '%s'", loc)
+			if verbose {
+				log.Printf("Removing symlink: '%s'", loc)
+			}
 			if err := os.Remove(loc); err != nil {
 				return err
 			}
 		} else if clobber {
-			log.Print("Clobbering path: '%s'", loc)
+			if verbose {
+				log.Print("Clobbering path: '%s'", loc)
+			}
 			if err := os.RemoveAll(loc); err != nil {
 				return err
 			}
@@ -62,7 +72,7 @@ func preparePath(loc string, force, clobber bool) error {
 	return nil
 }
 
-func (this link) install(srcDir, dstDir string) error {
+func (this link) install(srcDir, dstDir string, flags int) error {
 	if len(this.Dst) == 0 {
 		this.Dst = this.Src
 	}
@@ -70,22 +80,17 @@ func (this link) install(srcDir, dstDir string) error {
 	srcPath := path.Join(srcDir, this.Src)
 	dstPath := path.Join(dstDir, this.Dst)
 
-	if !path.IsAbs(dstPath) {
-		return fmt.Errorf("Destination path is not absolute: '%s'", dstPath)
-	}
-
-	if !path.IsAbs(srcPath) {
-		return fmt.Errorf("Source path is not absolute: '%s'", srcPath)
-	}
-
 	if _, err := os.Stat(srcPath); os.IsNotExist(err) {
 		return fmt.Errorf("Source path does not exist in filesystem: '%s'", srcPath)
 	}
 
-	if err := preparePath(dstPath, true, true); err != nil {
+	if err := preparePath(dstPath, flags); err != nil {
 		return err
 	}
 
-	log.Printf("Linking: '%s' => '%s'", srcPath, dstPath)
+	if flags&optVerbose == optVerbose {
+		log.Printf("Linking: '%s' => '%s'", srcPath, dstPath)
+	}
+
 	return os.Symlink(srcPath, dstPath)
 }
