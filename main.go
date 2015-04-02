@@ -23,9 +23,11 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/naoina/toml"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
@@ -47,8 +49,21 @@ func parse(filename string) (*config, error) {
 	}
 
 	conf := &config{}
-	if err := toml.Unmarshal(bytes, &conf); err != nil {
-		return nil, err
+	switch path.Ext(filename) {
+	case "json":
+		if err := json.Unmarshal(bytes, &conf); err != nil {
+			return nil, err
+		}
+	case "toml":
+		if err := toml.Unmarshal(bytes, &conf); err != nil {
+			return nil, err
+		}
+	case "yaml":
+		if err := yaml.Unmarshal(bytes, &conf); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("Unsupported configuration file format")
 	}
 
 	return conf, nil
