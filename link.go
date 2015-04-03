@@ -40,12 +40,16 @@ func cleanPath(loc string, flags int) error {
 			if err := os.Remove(loc); err != nil {
 				return err
 			}
-		} else if flags&optClobber == optClobber {
-			if verbose {
-				log.Print("Clobbering path: '%s'", loc)
-			}
-			if err := os.RemoveAll(loc); err != nil {
-				return err
+		} else {
+			if flags&optClobber == optClobber {
+				if verbose {
+					log.Print("Clobbering path: '%s'", loc)
+				}
+				if err := os.RemoveAll(loc); err != nil {
+					return err
+				}
+			} else {
+				return fmt.Errorf("Cannot create link; target already exists: '%s'", loc)
 			}
 		}
 	}
@@ -107,7 +111,7 @@ func (this *link) install(srcDir, dstDir string, flags int) error {
 	}
 
 	if flags&optVerbose == optVerbose {
-		log.Printf("Linking: '%s' => '%s'", srcPath, dstPath)
+		log.Printf("Linking: '%s' to '%s'", srcPath, dstPath)
 	}
 
 	return os.Symlink(srcPath, dstPath)
