@@ -75,7 +75,7 @@ func usage() {
 	flag.PrintDefaults()
 }
 
-func absPath(path string) string {
+func makeAbsPath(path string) string {
 	path, err := filepath.Abs(path)
 	if err != nil {
 		log.Fatal(err)
@@ -91,8 +91,7 @@ func main() {
 	}
 
 	taskName := flag.String("task", "default", "name of task to execute")
-	action := flag.String("action", "install", "install or uninstall symlinks")
-	dstDir := flag.String("dest", currUsr.HomeDir, "target directory for symlinks")
+	dstDir := flag.String("dest", currUsr.HomeDir, "target directory for tasks")
 	force := flag.Bool("force", true, "create parent directories to target")
 	clobber := flag.Bool("clobber", false, "delete files and directories at target")
 	verbose := flag.Bool("verbose", false, "verbose output")
@@ -111,31 +110,16 @@ func main() {
 		flags |= optVerbose
 	}
 
-	if flag.NArg() == 0 {
-		usage()
-		os.Exit(2)
-	}
-
-	conf, err := parse(flag.Arg(0))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	switch *action {
-	case "install":
-		if flag.NArg() >= 2 {
-			if err := conf.install(absPath(flag.Arg(1)), absPath(*dstDir), *taskName, flags); err != nil {
-				log.Fatal(err)
-			}
-		} else {
-			usage()
-			os.Exit(2)
-		}
-	case "uninstall":
-		if err := conf.uninstall(absPath(*dstDir), *taskName, flags); err != nil {
+	if flag.NArg() == 2 {
+		conf, err := parse(flag.Arg(0))
+		if err != nil {
 			log.Fatal(err)
 		}
-	default:
+
+		if err := conf.install(makeAbsPath(flag.Arg(1)), makeAbsPath(*dstDir), *taskName, flags); err != nil {
+			log.Fatal(err)
+		}
+	} else {
 		usage()
 		os.Exit(2)
 	}

@@ -57,20 +57,23 @@ func cleanPath(loc string, flags int) error {
 	return nil
 }
 
-func prepInstallPath(loc string, flags int) error {
-	if flags&optForce == optForce {
-		parentDir, _ := path.Split(loc)
-		if _, err := os.Stat(parentDir); os.IsNotExist(err) {
-			if flags&optVerbose == optVerbose {
-				log.Printf("Force creating path: '%s'", parentDir)
-			}
-			if err := os.MkdirAll(parentDir, 0777); err != nil {
-				return err
-			}
+func createPath(loc string, flags int) error {
+	if flags&optForce == 0 {
+		return nil
+	}
+
+	parentDir, _ := path.Split(loc)
+
+	if _, err := os.Stat(parentDir); os.IsNotExist(err) {
+		if flags&optVerbose == optVerbose {
+			log.Printf("Force creating path: '%s'", parentDir)
+		}
+		if err := os.MkdirAll(parentDir, 0777); err != nil {
+			return err
 		}
 	}
 
-	return cleanPath(loc, flags)
+	return nil
 }
 
 func (this *link) source() string {
@@ -106,7 +109,11 @@ func (this *link) install(srcDir, dstDir string, flags int) error {
 		return fmt.Errorf("Source path does not exist in filesystem: '%s'", srcPath)
 	}
 
-	if err := prepInstallPath(dstPath, flags); err != nil {
+	if err := createPath(dstPath, flags); err != nil {
+		return err
+	}
+
+	if err := cleanPath(dstPath, flags); err != nil {
 		return err
 	}
 
@@ -115,12 +122,4 @@ func (this *link) install(srcDir, dstDir string, flags int) error {
 	}
 
 	return os.Symlink(srcPath, dstPath)
-}
-
-func (this *link) uninstall(dstDir string, flags int) error {
-	if !this.valid() {
-		return fmt.Errorf("Link element is invalid")
-	}
-
-	return cleanPath(path.Join(dstDir, this.destination()), flags)
 }
