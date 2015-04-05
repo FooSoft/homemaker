@@ -48,7 +48,6 @@ func (this *task) process(srcDir, dstDir string, conf *config, flags int) error 
 		}
 	}
 
-	fmt.Print(this.Commands)
 	for _, currCmd := range this.Commands {
 		if err := currCmd.process(dstDir, flags); err != nil {
 			return err
