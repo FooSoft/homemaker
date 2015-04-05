@@ -22,17 +22,33 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"strings"
+)
 
-type config struct {
-	Tasks map[string]task
+type command []string
+
+func (this *command) valid() bool {
+	return len(*this) >= 1
 }
 
-func (this *config) process(srcDir, dstDir, taskName string, flags int) error {
-	task, ok := this.Tasks[taskName]
-	if !ok {
-		return fmt.Errorf("task not found %s", taskName)
+func (this *command) process(dir string, flags int) error {
+	if !this.valid() {
+		return fmt.Errorf("command element is invalid")
 	}
 
-	return task.process(srcDir, dstDir, this, flags)
+	cmd := exec.Command((*this)[0], (*this)[1:]...)
+	cmd.Dir = dir
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+
+	if flags&optVerbose == optVerbose {
+		log.Printf("executing command %s", strings.Join(*this, " "))
+	}
+
+	return cmd.Run()
 }

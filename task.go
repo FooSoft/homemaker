@@ -24,27 +24,33 @@ package main
 
 import "fmt"
 
-type link []string
-
 type task struct {
-	Deps  []string
-	Links []link
+	Deps     []string
+	Links    []link
+	Commands []command
 }
 
-func (this *task) install(srcDir, dstDir string, conf *config, flags int) error {
+func (this *task) process(srcDir, dstDir string, conf *config, flags int) error {
 	for _, depName := range this.Deps {
 		depTask, ok := conf.Tasks[depName]
 		if !ok {
-			return fmt.Errorf("Task dependency not found: '%s'", depName)
+			return fmt.Errorf("task dependency not found %s", depName)
 		}
 
-		if err := depTask.install(srcDir, dstDir, conf, flags); err != nil {
+		if err := depTask.process(srcDir, dstDir, conf, flags); err != nil {
 			return err
 		}
 	}
 
 	for _, currLink := range this.Links {
-		if err := currLink.install(srcDir, dstDir, flags); err != nil {
+		if err := currLink.process(srcDir, dstDir, flags); err != nil {
+			return err
+		}
+	}
+
+	fmt.Print(this.Commands)
+	for _, currCmd := range this.Commands {
+		if err := currCmd.process(dstDir, flags); err != nil {
 			return err
 		}
 	}

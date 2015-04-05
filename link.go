@@ -29,27 +29,25 @@ import (
 	"path"
 )
 
-func cleanPath(loc string, flags int) error {
-	verbose := flags&optVerbose == optVerbose
+type link []string
 
+func cleanPath(loc string, flags int) error {
 	if info, _ := os.Lstat(loc); info != nil {
 		if info.Mode()&os.ModeSymlink == os.ModeSymlink {
-			if verbose {
-				log.Printf("Removing symlink: '%s'", loc)
+			if flags&optVerbose == optVerbose {
+				log.Printf("removing symlink %s", loc)
 			}
 			if err := os.Remove(loc); err != nil {
 				return err
 			}
 		} else {
 			if flags&optClobber == optClobber {
-				if verbose {
-					log.Print("Clobbering path: '%s'", loc)
+				if flags&optVerbose == optVerbose {
+					log.Printf("clobbering path %s", loc)
 				}
 				if err := os.RemoveAll(loc); err != nil {
 					return err
 				}
-			} else {
-				return fmt.Errorf("Cannot create link; target already exists: '%s'", loc)
 			}
 		}
 	}
@@ -58,18 +56,15 @@ func cleanPath(loc string, flags int) error {
 }
 
 func createPath(loc string, flags int) error {
-	if flags&optForce == 0 {
-		return nil
-	}
-
-	parentDir, _ := path.Split(loc)
-
-	if _, err := os.Stat(parentDir); os.IsNotExist(err) {
-		if flags&optVerbose == optVerbose {
-			log.Printf("Force creating path: '%s'", parentDir)
-		}
-		if err := os.MkdirAll(parentDir, 0777); err != nil {
-			return err
+	if flags&optForce == optForce {
+		parentDir, _ := path.Split(loc)
+		if _, err := os.Stat(parentDir); os.IsNotExist(err) {
+			if flags&optVerbose == optVerbose {
+				log.Printf("force creating path %s", parentDir)
+			}
+			if err := os.MkdirAll(parentDir, 0777); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -97,16 +92,16 @@ func (this *link) valid() bool {
 	return length >= 1 && length <= 2
 }
 
-func (this *link) install(srcDir, dstDir string, flags int) error {
+func (this *link) process(srcDir, dstDir string, flags int) error {
 	if !this.valid() {
-		return fmt.Errorf("Link element is invalid")
+		return fmt.Errorf("link element is invalid")
 	}
 
 	srcPath := path.Join(srcDir, this.source())
 	dstPath := path.Join(dstDir, this.destination())
 
 	if _, err := os.Stat(srcPath); os.IsNotExist(err) {
-		return fmt.Errorf("Source path does not exist in filesystem: '%s'", srcPath)
+		return fmt.Errorf("source path %s does not exist in filesystem", srcPath)
 	}
 
 	if err := createPath(dstPath, flags); err != nil {
@@ -118,7 +113,7 @@ func (this *link) install(srcDir, dstDir string, flags int) error {
 	}
 
 	if flags&optVerbose == optVerbose {
-		log.Printf("Linking: '%s' to '%s'", srcPath, dstPath)
+		log.Printf("linking %s to %s", srcPath, dstPath)
 	}
 
 	return os.Symlink(srcPath, dstPath)

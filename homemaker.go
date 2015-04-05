@@ -63,7 +63,7 @@ func parse(filename string) (*config, error) {
 			return nil, err
 		}
 	default:
-		return nil, fmt.Errorf("Unsupported configuration file format")
+		return nil, fmt.Errorf("unsupported configuration file format")
 	}
 
 	return conf, nil
@@ -116,7 +116,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		if err := conf.install(makeAbsPath(flag.Arg(1)), makeAbsPath(*dstDir), *taskName, flags); err != nil {
+		if err := conf.process(makeAbsPath(flag.Arg(1)), makeAbsPath(*dstDir), *taskName, flags); err != nil {
 			log.Fatal(err)
 		}
 	} else {
