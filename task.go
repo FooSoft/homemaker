@@ -25,9 +25,9 @@ package main
 import "fmt"
 
 type task struct {
-	Deps     []string
-	Links    []link
-	Commands []command
+	Deps  []string
+	Links []link
+	Cmds  []command
 }
 
 func (this *task) process(srcDir, dstDir string, conf *config, flags int) error {
@@ -48,7 +48,7 @@ func (this *task) process(srcDir, dstDir string, conf *config, flags int) error 
 		}
 	}
 
-	for _, currCmd := range this.Commands {
+	for _, currCmd := range this.Cmds {
 		if err := currCmd.process(dstDir, flags); err != nil {
 			return err
 		}
