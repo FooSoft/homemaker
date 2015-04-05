@@ -37,9 +37,9 @@ import (
 )
 
 const (
-	optClobber = 1 << 0
-	optForce   = 1 << 1
-	optVerbose = 1 << 2
+	flagClobber = 1 << 0
+	flagForce   = 1 << 1
+	flagVerbose = 1 << 2
 )
 
 func parse(filename string) (*config, error) {
@@ -101,13 +101,13 @@ func main() {
 
 	flags := 0
 	if *clobber {
-		flags |= optClobber
+		flags |= flagClobber
 	}
 	if *force {
-		flags |= optForce
+		flags |= flagForce
 	}
 	if *verbose {
-		flags |= optVerbose
+		flags |= flagVerbose
 	}
 
 	if flag.NArg() == 2 {
