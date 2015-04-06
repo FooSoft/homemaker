@@ -70,7 +70,8 @@ func parse(filename string) (*config, error) {
 }
 
 func usage() {
-	fmt.Printf("Usage: %s [options] conf [src]\n\n", os.Args[0])
+	fmt.Printf("Usage: %s [options] conf [src]\n", os.Args[0])
+	fmt.Print("http://foosoft.net/projects/homemaker/\n\n")
 	fmt.Print("Parameters:\n")
 	flag.PrintDefaults()
 }
