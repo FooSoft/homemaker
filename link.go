@@ -71,7 +71,7 @@ func createPath(loc string, flags int) error {
 	return nil
 }
 
-func (this *link) source() string {
+func (this *link) destination() string {
 	if len(*this) > 0 {
 		return (*this)[0]
 	}
@@ -79,12 +79,12 @@ func (this *link) source() string {
 	return ""
 }
 
-func (this *link) destination() string {
+func (this *link) source() string {
 	if len(*this) > 1 {
 		return (*this)[1]
 	}
 
-	return this.source()
+	return this.destination()
 }
 
 func (this *link) valid() bool {

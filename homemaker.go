@@ -91,7 +91,7 @@ func main() {
 	}
 
 	taskName := flag.String("task", "default", "name of task to execute")
-	dstDir := flag.String("dest", currUsr.HomeDir, "target directory for tasks")
+	dstDir := flag.String("dest_dir", currUsr.HomeDir, "target directory for tasks")
 	force := flag.Bool("force", true, "create parent directories to target")
 	clobber := flag.Bool("clobber", false, "delete files and directories at target")
 	verbose := flag.Bool("verbose", false, "verbose output")
