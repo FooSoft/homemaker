@@ -25,14 +25,17 @@ package main
 import "fmt"
 
 type config struct {
-	Tasks map[string]task
+	Tasks        map[string]task
+	tasksHandled map[string]bool
 }
 
 func (this *config) process(srcDir, dstDir, taskName string, flags int) error {
+	this.tasksHandled = make(map[string]bool)
+
 	task, ok := this.Tasks[taskName]
 	if !ok {
 		return fmt.Errorf("task not found %s", taskName)
 	}
 
-	return task.process(srcDir, dstDir, this, flags)
+	return task.process(taskName, srcDir, dstDir, this, flags)
 }

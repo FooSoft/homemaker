@@ -30,14 +30,21 @@ type task struct {
 	Cmds  []command
 }
 
-func (this *task) process(srcDir, dstDir string, conf *config, flags int) error {
+func (this *task) process(taskName, srcDir, dstDir string, conf *config, flags int) error {
+	handled, ok := conf.tasksHandled[taskName]
+	if ok && handled {
+		return nil
+	}
+
+	conf.tasksHandled[taskName] = true
+
 	for _, depName := range this.Deps {
 		depTask, ok := conf.Tasks[depName]
 		if !ok {
 			return fmt.Errorf("task dependency not found %s", depName)
 		}
 
-		if err := depTask.process(srcDir, dstDir, conf, flags); err != nil {
+		if err := depTask.process(depName, srcDir, dstDir, conf, flags); err != nil {
 			return err
 		}
 	}
