@@ -32,12 +32,8 @@ import (
 
 type command []string
 
-func (this *command) valid() bool {
-	return len(*this) >= 1
-}
-
 func (this *command) process(dir string, flags int) error {
-	if !this.valid() {
+	if len(*this) < 1 {
 		return fmt.Errorf("command element is invalid")
 	}
 

@@ -27,6 +27,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strconv"
 )
 
 type link []string
@@ -55,14 +56,14 @@ func cleanPath(loc string, flags int) error {
 	return nil
 }
 
-func createPath(loc string, flags int) error {
+func createPath(loc string, flags int, mode os.FileMode) error {
 	if flags&flagForce == flagForce {
 		parentDir, _ := path.Split(loc)
 		if _, err := os.Stat(parentDir); os.IsNotExist(err) {
 			if flags&flagVerbose == flagVerbose {
 				log.Printf("force creating path %s", parentDir)
 			}
-			if err := os.MkdirAll(parentDir, 0777); err != nil {
+			if err := os.MkdirAll(parentDir, mode); err != nil {
 				return err
 			}
 		}
@@ -71,50 +72,66 @@ func createPath(loc string, flags int) error {
 	return nil
 }
 
-func (this *link) destination() string {
-	if len(*this) > 0 {
-		return (*this)[0]
-	}
-
-	return ""
-}
-
-func (this *link) source() string {
-	if len(*this) > 1 {
-		return (*this)[1]
-	}
-
-	return this.destination()
-}
-
-func (this *link) valid() bool {
+func (this *link) parse() (string, string, os.FileMode, error) {
 	length := len(*this)
-	return length >= 1 && length <= 2
+	if length < 1 || length > 3 {
+		return "", "", 0, fmt.Errorf("link element is invalid")
+	}
+
+	dstPath := (*this)[0]
+	srcPath := dstPath
+	if length > 1 {
+		srcPath = (*this)[1]
+	}
+
+	var mode os.FileMode = 0755
+	if length > 2 {
+		parsed, err := strconv.ParseUint((*this)[2], 0, 64)
+		if err != nil {
+			return "", "", 0, err
+		}
+
+		mode = os.FileMode(parsed)
+	}
+
+	return srcPath, dstPath, mode, nil
 }
 
 func (this *link) process(srcDir, dstDir string, flags int) error {
-	if !this.valid() {
-		return fmt.Errorf("link element is invalid")
-	}
-
-	srcPath := path.Join(srcDir, this.source())
-	dstPath := path.Join(dstDir, this.destination())
-
-	if _, err := os.Stat(srcPath); os.IsNotExist(err) {
-		return fmt.Errorf("source path %s does not exist in filesystem", srcPath)
-	}
-
-	if err := createPath(dstPath, flags); err != nil {
+	srcPath, dstPath, mode, err := this.parse()
+	if err != nil {
 		return err
 	}
 
-	if err := cleanPath(dstPath, flags); err != nil {
+	srcPathAbs := srcPath
+	if !path.IsAbs(srcPathAbs) {
+		srcPathAbs = path.Join(srcDir, srcPath)
+	}
+
+	dstPathAbs := dstPath
+	if !path.IsAbs(dstPathAbs) {
+		dstPathAbs = path.Join(dstDir, dstPath)
+	}
+
+	if _, err := os.Stat(srcPathAbs); os.IsNotExist(err) {
+		return fmt.Errorf("source path %s does not exist in filesystem", srcPathAbs)
+	}
+
+	if err := createPath(dstPathAbs, flags, mode); err != nil {
+		return err
+	}
+
+	if err := cleanPath(dstPathAbs, flags); err != nil {
 		return err
 	}
 
 	if flags&flagVerbose == flagVerbose {
-		log.Printf("linking %s to %s", srcPath, dstPath)
+		log.Printf("linking %s to %s", srcPathAbs, dstPathAbs)
 	}
 
-	return os.Symlink(srcPath, dstPath)
+	if err := os.Symlink(srcPathAbs, dstPathAbs); err != nil {
+		return err
+	}
+
+	return nil
 }
