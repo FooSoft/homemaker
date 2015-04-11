@@ -236,7 +236,11 @@ provides a more detailed description of what the parameters do.
 
     Sometimes dot-files for an application are nested within parent directories that must exist in order to allow the
     symlink to be successfully created (for example the `.config` directory in `.config/vlc`). As this is the expected
-    behavior, this parameter defaults to `true`; however you can explicitly disable it if required.
+    behavior, this parameter defaults to `true`; however you can explicitly disable it if required. You can specify the
+    access permissions of directories created by force by providing a third array item in the link descriptor. For
+    example, if you wanted the `.ssh` directory to be created with mode `700`, you could write the following:
+    `[".ssh/id_rsa.pub", ".ssh_flatline/id_rsa.pub", 0700]`. Notice that you can specify permissions in octal notation
+    by adding a leading zero value (the `0x` prefix signifies hexadecimal).
 
 *   `task`
 
