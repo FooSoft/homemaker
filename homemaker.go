@@ -37,9 +37,9 @@ import (
 )
 
 const (
-	flagClobber = 1 << 0
-	flagForce   = 1 << 1
-	flagVerbose = 1 << 2
+	flagClobber = 1 << iota
+	flagForce
+	flagVerbose
 )
 
 func parse(filename string) (*config, error) {
