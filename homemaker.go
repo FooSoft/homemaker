@@ -70,9 +70,9 @@ func parse(filename string) (*config, error) {
 }
 
 func usage() {
-	fmt.Printf("Usage: %s [options] conf [src]\n", os.Args[0])
-	fmt.Print("http://foosoft.net/projects/homemaker/\n\n")
-	fmt.Print("Parameters:\n")
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] conf [src]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "http://foosoft.net/projects/homemaker/\n\n")
+	fmt.Fprintf(os.Stderr, "Parameters:\n")
 	flag.PrintDefaults()
 }
 
