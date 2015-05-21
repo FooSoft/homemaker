@@ -57,8 +57,8 @@ go get github.com/FooSoft/homemaker
 
 Otherwise, you can use the pre-built binaries for the architectures below:
 
-*   [amd64](http://foosoft.net/dl/homemaker/homemaker_amd64.tar.gz)
-*   [386](http://foosoft.net/dl/homemaker/homemaker_386.tar.gz)
+*   [amd64](http://foosoft.net/projects/homemaker/dl/homemaker-amd64.tar.gz)
+*   [386](http://foosoft.net/projects/homemaker/dl/homemaker-386.tar.gz)
 
 ## Configuration ##
 
