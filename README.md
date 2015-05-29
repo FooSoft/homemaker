@@ -55,10 +55,10 @@ If you already have the Go environment and toolchain set up, you can get the lat
 go get github.com/FooSoft/homemaker
 ```
 
-Otherwise, you can use the pre-built binaries for the architectures below:
+Otherwise, you can use the pre-built binaries for the platforms below:
 
-*   [linux amd64](http://foosoft.net/projects/homemaker/dl/homemaker-amd64.tar.gz)
-*   [linux 386](http://foosoft.net/projects/homemaker/dl/homemaker-386.tar.gz)
+*   [linux-amd64](http://foosoft.net/projects/homemaker/dl/homemaker-amd64.tar.gz)
+*   [linux-386](http://foosoft.net/projects/homemaker/dl/homemaker-386.tar.gz)
 
 ## Configuration ##
 
