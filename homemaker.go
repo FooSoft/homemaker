@@ -40,6 +40,8 @@ const (
 	flagClobber = 1 << iota
 	flagForce
 	flagVerbose
+	flagNoCmd
+	flagNoLink
 )
 
 func parse(filename string) (*config, error) {
@@ -96,6 +98,8 @@ func main() {
 	force := flag.Bool("force", true, "create parent directories to target")
 	clobber := flag.Bool("clobber", false, "delete files and directories at target")
 	verbose := flag.Bool("verbose", false, "verbose output")
+	nocmd := flag.Bool("nocmd", false, "don't execute commands")
+	nolink := flag.Bool("nolink", false, "don't create links")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -109,6 +113,12 @@ func main() {
 	}
 	if *verbose {
 		flags |= flagVerbose
+	}
+	if *nocmd {
+		flags |= flagNoCmd
+	}
+	if *nolink {
+		flags |= flagNoLink
 	}
 
 	if flag.NArg() == 2 {

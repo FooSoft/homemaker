@@ -49,15 +49,19 @@ func (this *task) process(taskName, srcDir, dstDir string, conf *config, flags i
 		}
 	}
 
-	for _, currLink := range this.Links {
-		if err := currLink.process(srcDir, dstDir, flags); err != nil {
-			return err
+	if flags&flagNoLink == 0 {
+		for _, currLink := range this.Links {
+			if err := currLink.process(srcDir, dstDir, flags); err != nil {
+				return err
+			}
 		}
 	}
 
-	for _, currCmd := range this.Cmds {
-		if err := currCmd.process(dstDir, flags); err != nil {
-			return err
+	if flags&flagNoCmd == 0 {
+		for _, currCmd := range this.Cmds {
+			if err := currCmd.process(dstDir, flags); err != nil {
+				return err
+			}
 		}
 	}
 
