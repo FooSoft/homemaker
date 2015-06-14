@@ -232,14 +232,6 @@ provides a more detailed description of what the parameters do.
     for the current user, and as long as you are just using this application to manage dot-files, will probably never
     need to be changed.
 
-*   `nocmd`
-
-    Do not execute commands for the `cmd` blocks inside of tasks.
-
-*   `nolink`
-
-    Do not create links for the `link` blocks inside of tasks.
-
 *   `force`
 
     Sometimes dot-files for an application are nested within parent directories that must exist in order to allow the
@@ -249,6 +241,14 @@ provides a more detailed description of what the parameters do.
     example, if you wanted the `.ssh` directory to be created with mode `700`, you could write the following:
     `[".ssh/id_rsa.pub", ".ssh_flatline/id_rsa.pub", 0700]`. Notice that you can specify permissions in octal notation
     by adding a leading zero value (the `0x` prefix signifies hexadecimal).
+
+*   `nocmd`
+
+    Do not execute commands for the `cmd` blocks inside of tasks.
+
+*   `nolink`
+
+    Do not create links for the `link` blocks inside of tasks.
 
 *   `task`
 
