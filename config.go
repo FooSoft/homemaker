@@ -29,13 +29,13 @@ type config struct {
 	tasksHandled map[string]bool
 }
 
-func (this *config) process(srcDir, dstDir, taskName string, flags int) error {
-	this.tasksHandled = make(map[string]bool)
+func (c *config) process(srcDir, dstDir, taskName string, flags int) error {
+	c.tasksHandled = make(map[string]bool)
 
-	task, ok := this.Tasks[taskName]
+	task, ok := c.Tasks[taskName]
 	if !ok {
 		return fmt.Errorf("task not found %s", taskName)
 	}
 
-	return task.process(taskName, srcDir, dstDir, this, flags)
+	return task.process(taskName, srcDir, dstDir, c, flags)
 }

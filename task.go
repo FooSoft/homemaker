@@ -30,7 +30,7 @@ type task struct {
 	Cmds  []command
 }
 
-func (this *task) process(taskName, srcDir, dstDir string, conf *config, flags int) error {
+func (t *task) process(taskName, srcDir, dstDir string, conf *config, flags int) error {
 	handled, ok := conf.tasksHandled[taskName]
 	if ok && handled {
 		return nil
@@ -38,7 +38,7 @@ func (this *task) process(taskName, srcDir, dstDir string, conf *config, flags i
 
 	conf.tasksHandled[taskName] = true
 
-	for _, depName := range this.Deps {
+	for _, depName := range t.Deps {
 		depTask, ok := conf.Tasks[depName]
 		if !ok {
 			return fmt.Errorf("task dependency not found %s", depName)
@@ -50,7 +50,7 @@ func (this *task) process(taskName, srcDir, dstDir string, conf *config, flags i
 	}
 
 	if flags&flagNoLink == 0 {
-		for _, currLink := range this.Links {
+		for _, currLink := range t.Links {
 			if err := currLink.process(srcDir, dstDir, flags); err != nil {
 				return err
 			}
@@ -58,7 +58,7 @@ func (this *task) process(taskName, srcDir, dstDir string, conf *config, flags i
 	}
 
 	if flags&flagNoCmd == 0 {
-		for _, currCmd := range this.Cmds {
+		for _, currCmd := range t.Cmds {
 			if err := currCmd.process(dstDir, flags); err != nil {
 				return err
 			}
