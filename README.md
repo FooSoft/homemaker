@@ -118,6 +118,8 @@ Parameters:
   -clobber=false: delete files and directories at target
   -dest="/home/alex": target directory for tasks
   -force=true: create parent directories to target
+  -nocmd=false: don't execute commands
+  -nolink=false: don't create links
   -task="default": name of task to execute
   -verbose=false: verbose output
 ```
@@ -244,11 +246,11 @@ provides a more detailed description of what the parameters do.
 
 *   `nocmd`
 
-    Do not execute commands for the `cmd` blocks inside of tasks.
+    Do not execute commands for the `cmds` blocks inside of tasks.
 
 *   `nolink`
 
-    Do not create links for the `link` blocks inside of tasks.
+    Do not create links for the `links` blocks inside of tasks.
 
 *   `task`
 
