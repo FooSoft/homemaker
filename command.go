@@ -41,6 +41,7 @@ func (c *command) process(dir string, flags int) error {
 	cmd.Dir = dir
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
 
 	if flags&flagVerbose == flagVerbose {
 		log.Printf("executing command %s", strings.Join(*c, " "))
