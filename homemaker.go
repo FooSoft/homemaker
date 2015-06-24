@@ -26,14 +26,15 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/naoina/toml"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/user"
 	"path"
 	"path/filepath"
+
+	"github.com/naoina/toml"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -72,7 +73,7 @@ func parse(filename string) (*config, error) {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] conf [src]\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] conf src\n", os.Args[0])
 	fmt.Fprintf(os.Stderr, "http://foosoft.net/projects/homemaker/\n\n")
 	fmt.Fprintf(os.Stderr, "Parameters:\n")
 	flag.PrintDefaults()
