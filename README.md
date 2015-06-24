@@ -112,7 +112,7 @@ homemaker example.json /mnt/data/config
 To get a better idea of what `/mnt/data/config` is, let's look at the in-program documentation:
 
 ```
-Usage: homemaker [options] conf [src]
+Usage: homemaker [options] conf src
 
 Parameters:
   -clobber=false: delete files and directories at target
