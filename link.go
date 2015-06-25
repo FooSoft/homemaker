@@ -72,32 +72,35 @@ func createPath(loc string, flags int, mode os.FileMode) error {
 	return nil
 }
 
-func (l *link) parse() (string, string, os.FileMode, error) {
-	length := len(*l)
+func (l link) parse() (srcPath string, dstPath string, mode os.FileMode, err error) {
+	length := len(l)
 	if length < 1 || length > 3 {
-		return "", "", 0, fmt.Errorf("link element is invalid")
+		err = fmt.Errorf("link element is invalid")
+		return
 	}
 
-	dstPath := (*l)[0]
-	srcPath := dstPath
-	if length > 1 {
-		srcPath = (*l)[1]
-	}
-
-	var mode os.FileMode = 0755
 	if length > 2 {
-		parsed, err := strconv.ParseUint((*l)[2], 0, 64)
+		var parsed uint64
+		parsed, err = strconv.ParseUint(l[2], 0, 64)
 		if err != nil {
-			return "", "", 0, err
+			return
 		}
 
 		mode = os.FileMode(parsed)
+	} else {
+		mode = 0755
 	}
 
-	return srcPath, dstPath, mode, nil
+	dstPath = os.ExpandEnv(l[0])
+	srcPath = dstPath
+	if length > 1 {
+		srcPath = os.ExpandEnv(l[1])
+	}
+
+	return
 }
 
-func (l *link) process(srcDir, dstDir string, flags int) error {
+func (l link) process(srcDir, dstDir string, flags int) error {
 	srcPath, dstPath, mode, err := l.parse()
 	if err != nil {
 		return err

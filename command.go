@@ -32,19 +32,25 @@ import (
 
 type command []string
 
-func (c *command) process(dir string, flags int) error {
-	if len(*c) < 1 {
+func (c command) expandEnv() {
+	for index, value := range c {
+		c[index] = os.ExpandEnv(value)
+	}
+}
+
+func (c command) process(dir string, flags int) error {
+	if len(c) < 1 {
 		return fmt.Errorf("command element is invalid")
 	}
 
-	cmd := exec.Command((*c)[0], (*c)[1:]...)
+	cmd := exec.Command(c[0], c[1:]...)
 	cmd.Dir = dir
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 
 	if flags&flagVerbose == flagVerbose {
-		log.Printf("executing command %s", strings.Join(*c, " "))
+		log.Printf("executing command %s", strings.Join(c, " "))
 	}
 
 	return cmd.Run()
