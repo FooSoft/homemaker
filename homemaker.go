@@ -123,6 +123,15 @@ func main() {
 	}
 
 	if flag.NArg() == 2 {
+		srcDirAbs := makeAbsPath(flag.Arg(1))
+		dstDirAbs := makeAbsPath(*dstDir)
+		confDirAbs := makeAbsPath(flag.Arg(0))
+
+		os.Setenv("HM_CONFIG", confDirAbs)
+		os.Setenv("HM_TASK", *taskName)
+		os.Setenv("HM_SRC", srcDirAbs)
+		os.Setenv("HM_DEST", dstDirAbs)
+
 		conf, err := parse(flag.Arg(0))
 		if err != nil {
 			log.Fatal(err)
