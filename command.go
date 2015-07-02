@@ -32,10 +32,13 @@ import (
 
 type command []string
 
-func (c command) expandEnv() {
-	for index, value := range c {
-		c[index] = os.ExpandEnv(value)
+func (c command) expandEnv() []string {
+	var args []string
+	for _, value := range c {
+		args = append(args, os.ExpandEnv(value))
 	}
+
+	return args
 }
 
 func (c command) process(dir string, flags int) error {
@@ -43,14 +46,16 @@ func (c command) process(dir string, flags int) error {
 		return fmt.Errorf("command element is invalid")
 	}
 
-	cmd := exec.Command(c[0], c[1:]...)
+	args := c.expandEnv()
+
+	cmd := exec.Command(args[0], args[1:]...)
 	cmd.Dir = dir
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 
 	if flags&flagVerbose == flagVerbose {
-		log.Printf("executing command %s", strings.Join(c, " "))
+		log.Printf("executing command %s", strings.Join(args, " "))
 	}
 
 	return cmd.Run()
