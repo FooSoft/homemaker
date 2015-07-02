@@ -123,21 +123,21 @@ func main() {
 	}
 
 	if flag.NArg() == 2 {
+		confDirAbs := makeAbsPath(flag.Arg(0))
 		srcDirAbs := makeAbsPath(flag.Arg(1))
 		dstDirAbs := makeAbsPath(*dstDir)
-		confDirAbs := makeAbsPath(flag.Arg(0))
 
 		os.Setenv("HM_CONFIG", confDirAbs)
 		os.Setenv("HM_TASK", *taskName)
 		os.Setenv("HM_SRC", srcDirAbs)
 		os.Setenv("HM_DEST", dstDirAbs)
 
-		conf, err := parse(flag.Arg(0))
+		conf, err := parse(confDirAbs)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if err := conf.process(makeAbsPath(flag.Arg(1)), makeAbsPath(*dstDir), *taskName, flags); err != nil {
+		if err := conf.process(srcDirAbs, dstDirAbs, *taskName, flags); err != nil {
 			log.Fatal(err)
 		}
 	} else {
