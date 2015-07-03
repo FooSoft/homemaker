@@ -204,17 +204,44 @@ with `dest` as the working directory (as mentioned previously, this defaults to 
 returns a nonzero exit code, Homemaker will display an error message and stop.
 
 The example task below will clone and install configuration files for [Vim](http://www.vim.org/) into the `.config`
-directory, and create links to it from the home directory.
+directory, and create links to it from the home directory. You may notice that this task references an environment
+variable (set by Homemaker itself) in the `links` block; you can read more about how to use environment variables in the
+following section.
 
 ```
 [tasks.vim]
     cmds = [
         ["rm", "-rf", ".config/vim"],
         ["git", "clone", "https://github.com/FooSoft/dotvim", ".config/vim"],
-        ["ln", "-sf", ".config/vim/.vimrc"],
-        ["ln", "-sf", ".config/vim/.vim"],
+    ]
+    links = [
+        [".vimrc", "${HM_DEST}/.config/vim/.vimrc"],
+        [".vim", "${HM_DEST}/.config/vim/.vim"],
     ]
 ```
+
+## Environment Variables ##
+
+Homemaker supports the expansion of environment variables for both command and link blocks. This is a good way of
+avoiding having to hard code absolute paths into your configuration file. To reference an environment variable simply
+use `${ENVVAR}`, where `ENVVAR` is the variable name. In addition to being able to use all of the environment variables
+defined on your system, Homemaker defines a couple of extra ones for ease of use:
+
+*   `HM_CONFIG`
+
+    Path to the homemaker configuration file.
+
+*   `HM_TASK`
+
+    Task name invoked from the command line.
+
+*   `HM_SRC`
+
+    Source directory for link creation.
+
+*   `HM_DEST`
+
+    Destination directory for link creation.
 
 ## Parameters ##
 
