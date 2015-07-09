@@ -52,7 +52,7 @@ suitable for your needs.
 If you already have the Go environment and toolchain set up, you can get the latest version by running:
 
 ```
-go get github.com/FooSoft/homemaker
+$ go get github.com/FooSoft/homemaker
 ```
 
 Otherwise, you can use the pre-built binaries for the platforms below:
@@ -106,7 +106,7 @@ We could have just as easily written this configuration in JSON (or YAML for tha
 To create symlinks based on this configuration we invoke the `homemaker` utility:
 
 ```
-homemaker example.json /mnt/data/config
+$ homemaker example.json /mnt/data/config
 ```
 
 To get a better idea of what `/mnt/data/config` is, let's look at the in-program documentation:
