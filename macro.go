@@ -27,8 +27,7 @@ type macroDef struct {
 }
 
 func (m macroDef) process(dir string, params []string, flags int) error {
-	var args []string
-	args = appendExpEnv(args, m.Prefix)
+	args := appendExpEnv(nil, m.Prefix)
 	args = appendExpEnv(args, params)
 	args = appendExpEnv(args, m.Suffix)
 
@@ -52,4 +51,19 @@ func (m macroDef) process(dir string, params []string, flags int) error {
 	}
 
 	return cmd.Run()
+}
+
+type macro []string
+
+func (m macro) process(dir string, conf *config, flags int) error {
+	if len(m) == 0 {
+		return fmt.Errorf("macro element is invalid")
+	}
+
+	macro, ok := conf.Macros[m[0]]
+	if !ok {
+		return fmt.Errorf("macro dependency not found %s", m[0])
+	}
+
+	return macro.process(dir, m[1:], flags)
 }

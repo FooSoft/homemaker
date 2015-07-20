@@ -22,8 +22,6 @@
 
 package main
 
-import "fmt"
-
 type config struct {
 	Tasks        map[string]taskDef
 	Macros       map[string]macroDef
@@ -32,11 +30,5 @@ type config struct {
 
 func (c *config) process(srcDir, dstDir, taskName string, flags int) error {
 	c.tasksHandled = make(map[string]bool)
-
-	task, ok := c.Tasks[taskName]
-	if !ok {
-		return fmt.Errorf("task not found %s", taskName)
-	}
-
-	return task.process(taskName, srcDir, dstDir, c, flags)
+	return task(taskName).process(srcDir, dstDir, c, flags)
 }

@@ -24,54 +24,30 @@ package main
 
 import "fmt"
 
-type macro []string
-
 type taskDef struct {
-	Deps   []string
+	Deps   []task
 	Links  []link
 	Cmds   []command
 	Macros []macro
 	Envs   []env
 }
 
-func (t *taskDef) process(taskName, srcDir, dstDir string, conf *config, flags int) error {
-	handled, ok := conf.tasksHandled[taskName]
-	if ok && handled {
-		return nil
-	}
-
-	conf.tasksHandled[taskName] = true
-
-	for _, depName := range t.Deps {
-		depTask, ok := conf.Tasks[depName]
-		if !ok {
-			return fmt.Errorf("task dependency not found %s", depName)
-		}
-
-		if err := depTask.process(depName, srcDir, dstDir, conf, flags); err != nil {
+func (t *taskDef) process(srcDir, dstDir string, conf *config, flags int) error {
+	for _, currTask := range t.Deps {
+		if err := currTask.process(srcDir, dstDir, conf, flags); err != nil {
 			return err
 		}
 	}
 
 	for _, currEnv := range t.Envs {
-		currEnv.process()
+		if err := currEnv.process(flags); err != nil {
+			return err
+		}
 	}
 
 	if flags&flagNoMacro == 0 {
 		for _, currMacro := range t.Macros {
-			if len(currMacro) == 0 {
-				continue
-			}
-
-			macroName := currMacro[0]
-			macroParams := currMacro[1:]
-
-			depMacro, ok := conf.Macros[macroName]
-			if !ok {
-				return fmt.Errorf("macro dependency not found %s", macroName)
-			}
-
-			if err := depMacro.process(dstDir, macroParams, flags); err != nil {
+			if err := currMacro.process(dstDir, conf, flags); err != nil {
 				return err
 			}
 		}
@@ -94,4 +70,24 @@ func (t *taskDef) process(taskName, srcDir, dstDir string, conf *config, flags i
 	}
 
 	return nil
+}
+
+type task string
+
+func (t task) process(srcDir, dstDir string, conf *config, flags int) error {
+	taskName := string(t)
+
+	handled, ok := conf.tasksHandled[taskName]
+	if ok && handled {
+		return nil
+	}
+
+	conf.tasksHandled[taskName] = true
+
+	task, ok := conf.Tasks[taskName]
+	if !ok {
+		return fmt.Errorf("task not found %s", t)
+	}
+
+	return task.process(srcDir, dstDir, conf, flags)
 }

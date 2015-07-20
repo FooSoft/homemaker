@@ -23,23 +23,37 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"strings"
 )
 
 type env []string
 
-func (e env) process() {
+func (e env) process(flags int) error {
 	items := appendExpEnv(nil, e)
 
+	var value string
 	switch {
 	case len(items) == 0:
-		return
+		return fmt.Errorf("enviornment element is invalid")
 	case len(items) == 1:
+		if flags&flagVerbose == flagVerbose {
+			log.Printf("unsetting variable %s", items[0])
+		}
 		os.Unsetenv(items[0])
+		return nil
 	case len(items) == 2:
-		os.Setenv(items[0], items[1])
+		value = items[1]
 	default:
-		os.Setenv(items[0], strings.Join(items[1:], ","))
+		value = strings.Join(items[1:], ",")
 	}
+
+	if flags&flagVerbose == flagVerbose {
+		log.Printf("setting variable %s to %s", items[0], value)
+	}
+
+	os.Setenv(items[0], value)
+	return nil
 }

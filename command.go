@@ -33,8 +33,7 @@ import (
 type command []string
 
 func (c command) process(dir string, flags int) error {
-	var args []string
-	args = appendExpEnv(args, c)
+	args := appendExpEnv(nil, c)
 
 	var cmd *exec.Cmd
 	switch {
