@@ -49,7 +49,7 @@ func processCmd(params []string, dir string, conf *config, flags int) error {
 
 		m, ok := conf.Macros[macroName]
 		if !ok {
-			return fmt.Errorf("macro dependency not found %s", macroName)
+			return fmt.Errorf("macro not found %s", macroName)
 		}
 
 		cmdArgs = appendExpEnv(cmdArgs, m.Prefix)
@@ -57,6 +57,10 @@ func processCmd(params []string, dir string, conf *config, flags int) error {
 			cmdArgs = appendExpEnv(cmdArgs, args[1:])
 		}
 		cmdArgs = appendExpEnv(cmdArgs, m.Suffix)
+
+		if flags&flagVerbose == flagVerbose {
+			log.Printf("using macro %s", macroName)
+		}
 	} else if len(args) > 1 {
 		cmdArgs = args[1:]
 	}
