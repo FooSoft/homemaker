@@ -25,7 +25,7 @@ package main
 import "fmt"
 
 type taskDef struct {
-	Deps   []task
+	Deps   []task `json:",string"`
 	Links  []link
 	Cmds   []command
 	Macros []macro
