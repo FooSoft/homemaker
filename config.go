@@ -25,7 +25,8 @@ package main
 import "fmt"
 
 type config struct {
-	Tasks        map[string]task
+	Tasks        map[string]taskDef
+	Macros       map[string]macroDef
 	tasksHandled map[string]bool
 }
 

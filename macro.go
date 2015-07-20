@@ -21,12 +21,14 @@ import (
 	"strings"
 )
 
-type macro struct {
+type macro []string
+
+type macroDef struct {
 	Prefix []string
 	Suffix []string
 }
 
-func (m macro) process(dir string, params []string, flags int) error {
+func (m macroDef) process(dir string, params []string, flags int) error {
 	var args []string
 	args = appendExpEnv(args, m.Prefix)
 	args = appendExpEnv(args, params)
