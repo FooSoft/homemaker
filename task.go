@@ -22,11 +22,9 @@
 
 package main
 
-import (
-	"fmt"
-	"os"
-	"strings"
-)
+import "fmt"
+
+type macro []string
 
 type taskDef struct {
 	Deps   []string
@@ -35,9 +33,6 @@ type taskDef struct {
 	Macros []macro
 	Envs   []env
 }
-
-type macro []string
-type env []string
 
 func (t *taskDef) process(taskName, srcDir, dstDir string, conf *config, flags int) error {
 	handled, ok := conf.tasksHandled[taskName]
@@ -58,27 +53,18 @@ func (t *taskDef) process(taskName, srcDir, dstDir string, conf *config, flags i
 		}
 	}
 
-	for _, envItems := range t.Envs {
-		switch {
-		case len(envItems) == 0:
-			continue
-		case len(envItems) == 1:
-			os.Unsetenv(envItems[0])
-		case len(envItems) == 2:
-			os.Setenv(envItems[0], envItems[1])
-		default:
-			os.Setenv(envItems[0], strings.Join(envItems[1:], ","))
-		}
+	for _, currEnv := range t.Envs {
+		currEnv.process()
 	}
 
 	if flags&flagNoMacro == 0 {
-		for _, macroItems := range t.Macros {
-			if len(macroItems) == 0 {
+		for _, currMacro := range t.Macros {
+			if len(currMacro) == 0 {
 				continue
 			}
 
-			macroName := macroItems[0]
-			macroParams := macroItems[1:]
+			macroName := currMacro[0]
+			macroParams := currMacro[1:]
 
 			depMacro, ok := conf.Macros[macroName]
 			if !ok {
