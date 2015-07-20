@@ -35,7 +35,7 @@ func processEnv(env []string, flags int) error {
 	var value string
 	switch {
 	case len(args) == 0:
-		return fmt.Errorf("enviornment element is invalid")
+		return fmt.Errorf("invalid environment statement")
 	case len(args) == 1:
 		if flags&flagVerbose == flagVerbose {
 			log.Printf("unsetting variable %s", args[0])

@@ -38,12 +38,10 @@ type macro struct {
 func processCmd(params []string, dir string, conf *config, flags int) error {
 	args := appendExpEnv(nil, params)
 	if len(args) == 0 {
-		return fmt.Errorf("command element is invalid")
+		return fmt.Errorf("invalid command statement")
 	}
 
 	cmdName := args[0]
-	var cmdArgs []string
-
 	if strings.HasPrefix(cmdName, "@") {
 		macroName := strings.TrimPrefix(cmdName, "@")
 
@@ -52,16 +50,21 @@ func processCmd(params []string, dir string, conf *config, flags int) error {
 			return fmt.Errorf("macro not found %s", macroName)
 		}
 
-		cmdArgs = appendExpEnv(cmdArgs, m.Prefix)
+		margs := appendExpEnv(nil, m.Prefix)
 		if len(args) > 1 {
-			cmdArgs = appendExpEnv(cmdArgs, args[1:])
+			margs = appendExpEnv(margs, args[1:])
 		}
-		cmdArgs = appendExpEnv(cmdArgs, m.Suffix)
+		margs = appendExpEnv(margs, m.Suffix)
 
 		if flags&flagVerbose == flagVerbose {
 			log.Printf("using macro %s", macroName)
 		}
-	} else if len(args) > 1 {
+
+		return processCmd(margs, dir, conf, flags)
+	}
+
+	var cmdArgs []string
+	if len(args) > 1 {
 		cmdArgs = args[1:]
 	}
 

@@ -73,7 +73,7 @@ func createPath(loc string, flags int, mode os.FileMode) error {
 func parseLink(params []string) (srcPath, dstPath string, mode os.FileMode, err error) {
 	length := len(params)
 	if length < 1 || length > 3 {
-		err = fmt.Errorf("link element is invalid")
+		err = fmt.Errorf("invalid link statement")
 		return
 	}
 
