@@ -43,6 +43,7 @@ const (
 	flagVerbose
 	flagNoCmd
 	flagNoLink
+	flagNoMacro
 )
 
 func parse(filename string) (*config, error) {
@@ -57,11 +58,11 @@ func parse(filename string) (*config, error) {
 		if err := json.Unmarshal(bytes, &conf); err != nil {
 			return nil, err
 		}
-	case ".toml":
+	case ".toml", ".tml":
 		if err := toml.Unmarshal(bytes, &conf); err != nil {
 			return nil, err
 		}
-	case ".yaml":
+	case ".yaml", ".yml":
 		if err := yaml.Unmarshal(bytes, &conf); err != nil {
 			return nil, err
 		}
@@ -101,6 +102,7 @@ func main() {
 	verbose := flag.Bool("verbose", false, "verbose output")
 	nocmd := flag.Bool("nocmd", false, "don't execute commands")
 	nolink := flag.Bool("nolink", false, "don't create links")
+	nomacro := flag.Bool("nomacro", false, "don't execute macros")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -120,6 +122,9 @@ func main() {
 	}
 	if *nolink {
 		flags |= flagNoLink
+	}
+	if *nomacro {
+		flags |= flagNoMacro
 	}
 
 	if flag.NArg() == 2 {
