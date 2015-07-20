@@ -50,21 +50,23 @@ func (t *taskDef) process(taskName, srcDir, dstDir string, conf *config, flags i
 		}
 	}
 
-	for _, macro := range t.Macros {
-		if len(macro) == 0 {
-			continue
-		}
+	if flags&flagNoMacro == 0 {
+		for _, macro := range t.Macros {
+			if len(macro) == 0 {
+				continue
+			}
 
-		macroName := macro[0]
-		macroParams := macro[1:]
+			macroName := macro[0]
+			macroParams := macro[1:]
 
-		depMacro, ok := conf.Macros[macroName]
-		if !ok {
-			return fmt.Errorf("macro dependency not found %s", macroName)
-		}
+			depMacro, ok := conf.Macros[macroName]
+			if !ok {
+				return fmt.Errorf("macro dependency not found %s", macroName)
+			}
 
-		if err := depMacro.process(dstDir, macroParams, flags); err != nil {
-			return err
+			if err := depMacro.process(dstDir, macroParams, flags); err != nil {
+				return err
+			}
 		}
 	}
 
