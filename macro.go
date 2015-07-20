@@ -21,8 +21,6 @@ import (
 	"strings"
 )
 
-type macro []string
-
 type macroDef struct {
 	Prefix []string
 	Suffix []string
