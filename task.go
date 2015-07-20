@@ -24,13 +24,14 @@ package main
 
 import "fmt"
 
-type task struct {
-	Deps  []string
-	Links []link
-	Cmds  []command
+type taskDef struct {
+	Deps   []string
+	Links  []link
+	Cmds   []command
+	Macros []macro
 }
 
-func (t *task) process(taskName, srcDir, dstDir string, conf *config, flags int) error {
+func (t *taskDef) process(taskName, srcDir, dstDir string, conf *config, flags int) error {
 	handled, ok := conf.tasksHandled[taskName]
 	if ok && handled {
 		return nil
@@ -45,6 +46,24 @@ func (t *task) process(taskName, srcDir, dstDir string, conf *config, flags int)
 		}
 
 		if err := depTask.process(depName, srcDir, dstDir, conf, flags); err != nil {
+			return err
+		}
+	}
+
+	for _, macro := range t.Macros {
+		if len(macro) == 0 {
+			continue
+		}
+
+		macroName := macro[0]
+		macroParams := macro[1:]
+
+		depMacro, ok := conf.Macros[macroName]
+		if !ok {
+			return fmt.Errorf("macro dependency not found %s", macroName)
+		}
+
+		if err := depMacro.process(dstDir, macroParams, flags); err != nil {
 			return err
 		}
 	}
