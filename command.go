@@ -30,26 +30,45 @@ import (
 	"strings"
 )
 
-func processCmd(params []string, dir string, flags int) error {
-	args := appendExpEnv(nil, params)
+type macro struct {
+	Prefix []string
+	Suffix []string
+}
 
-	var cmd *exec.Cmd
-	switch {
-	case len(args) == 0:
+func processCmd(params []string, dir string, conf *config, flags int) error {
+	args := appendExpEnv(nil, params)
+	if len(args) == 0 {
 		return fmt.Errorf("command element is invalid")
-	case len(args) == 1:
-		cmd = exec.Command(args[0])
-	default:
-		cmd = exec.Command(args[0], args[1:]...)
 	}
 
+	cmdName := args[0]
+	var cmdArgs []string
+
+	if strings.HasPrefix(cmdName, "@") {
+		macroName := strings.TrimPrefix(cmdName, "@")
+
+		m, ok := conf.Macros[macroName]
+		if !ok {
+			return fmt.Errorf("macro dependency not found %s", macroName)
+		}
+
+		cmdArgs = appendExpEnv(cmdArgs, m.Prefix)
+		if len(args) > 1 {
+			cmdArgs = appendExpEnv(cmdArgs, args[1:])
+		}
+		cmdArgs = appendExpEnv(cmdArgs, m.Suffix)
+	} else if len(args) > 1 {
+		cmdArgs = args[1:]
+	}
+
+	cmd := exec.Command(cmdName, cmdArgs...)
 	cmd.Dir = dir
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 
 	if flags&flagVerbose == flagVerbose {
-		log.Printf("executing command %s", strings.Join(args, " "))
+		log.Printf("executing command %s %s", cmdName, strings.Join(cmdArgs, " "))
 	}
 
 	return cmd.Run()

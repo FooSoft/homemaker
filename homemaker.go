@@ -31,7 +31,6 @@ import (
 	"os"
 	"os/user"
 	"path"
-	"path/filepath"
 
 	"github.com/naoina/toml"
 	"gopkg.in/yaml.v2"
@@ -46,7 +45,7 @@ const (
 	flagNoMacro
 )
 
-func parse(filename string) (*config, error) {
+func parseCfg(filename string) (*config, error) {
 	bytes, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -80,15 +79,6 @@ func usage() {
 	flag.PrintDefaults()
 }
 
-func makeAbsPath(path string) string {
-	path, err := filepath.Abs(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return path
-}
-
 func main() {
 	currUsr, err := user.Current()
 	if err != nil {
@@ -102,7 +92,6 @@ func main() {
 	verbose := flag.Bool("verbose", false, "verbose output")
 	nocmd := flag.Bool("nocmd", false, "don't execute commands")
 	nolink := flag.Bool("nolink", false, "don't create links")
-	nomacro := flag.Bool("nomacro", false, "don't execute macros")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -123,9 +112,6 @@ func main() {
 	if *nolink {
 		flags |= flagNoLink
 	}
-	if *nomacro {
-		flags |= flagNoMacro
-	}
 
 	if flag.NArg() == 2 {
 		confDirAbs := makeAbsPath(flag.Arg(0))
@@ -137,7 +123,7 @@ func main() {
 		os.Setenv("HM_SRC", srcDirAbs)
 		os.Setenv("HM_DEST", dstDirAbs)
 
-		conf, err := parse(confDirAbs)
+		conf, err := parseCfg(confDirAbs)
 		if err != nil {
 			log.Fatal(err)
 		}

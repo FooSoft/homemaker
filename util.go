@@ -22,7 +22,11 @@
 
 package main
 
-import "os"
+import (
+	"log"
+	"os"
+	"path/filepath"
+)
 
 func appendExpEnv(dst, src []string) []string {
 	for _, value := range src {
@@ -30,4 +34,13 @@ func appendExpEnv(dst, src []string) []string {
 	}
 
 	return dst
+}
+
+func makeAbsPath(path string) string {
+	path, err := filepath.Abs(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return path
 }

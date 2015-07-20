@@ -23,8 +23,8 @@
 package main
 
 type config struct {
-	Tasks        map[string]taskDef
-	Macros       map[string]macroDef
+	Tasks        map[string]task
+	Macros       map[string]macro
 	tasksHandled map[string]bool
 }
 

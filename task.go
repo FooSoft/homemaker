@@ -24,15 +24,14 @@ package main
 
 import "fmt"
 
-type taskDef struct {
-	Deps   []string
-	Links  [][]string
-	Cmds   [][]string
-	Macros [][]string
-	Envs   [][]string
+type task struct {
+	Deps  []string
+	Links [][]string
+	Cmds  [][]string
+	Envs  [][]string
 }
 
-func (t *taskDef) process(srcDir, dstDir string, conf *config, flags int) error {
+func (t *task) process(srcDir, dstDir string, conf *config, flags int) error {
 	for _, currTask := range t.Deps {
 		if err := processTask(currTask, srcDir, dstDir, conf, flags); err != nil {
 			return err
@@ -42,14 +41,6 @@ func (t *taskDef) process(srcDir, dstDir string, conf *config, flags int) error 
 	for _, currEnv := range t.Envs {
 		if err := processEnv(currEnv, flags); err != nil {
 			return err
-		}
-	}
-
-	if flags&flagNoMacro == 0 {
-		for _, currMacro := range t.Macros {
-			if err := processMacro(currMacro, dstDir, conf, flags); err != nil {
-				return err
-			}
 		}
 	}
 
@@ -63,7 +54,7 @@ func (t *taskDef) process(srcDir, dstDir string, conf *config, flags int) error 
 
 	if flags&flagNoCmd == 0 {
 		for _, currCmd := range t.Cmds {
-			if err := processCmd(currCmd, dstDir, flags); err != nil {
+			if err := processCmd(currCmd, dstDir, conf, flags); err != nil {
 				return err
 			}
 		}
@@ -80,10 +71,10 @@ func processTask(taskName, srcDir, dstDir string, conf *config, flags int) error
 
 	conf.tasksHandled[taskName] = true
 
-	task, ok := conf.Tasks[taskName]
+	t, ok := conf.Tasks[taskName]
 	if !ok {
 		return fmt.Errorf("task not found %s", taskName)
 	}
 
-	return task.process(srcDir, dstDir, conf, flags)
+	return t.process(srcDir, dstDir, conf, flags)
 }
