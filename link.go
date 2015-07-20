@@ -30,8 +30,6 @@ import (
 	"strconv"
 )
 
-type link []string
-
 func cleanPath(loc string, flags int) error {
 	if info, _ := os.Lstat(loc); info != nil {
 		if info.Mode()&os.ModeSymlink == os.ModeSymlink {
@@ -72,8 +70,8 @@ func createPath(loc string, flags int, mode os.FileMode) error {
 	return nil
 }
 
-func (l link) parse() (srcPath string, dstPath string, mode os.FileMode, err error) {
-	length := len(l)
+func parseLink(params []string) (srcPath, dstPath string, mode os.FileMode, err error) {
+	length := len(params)
 	if length < 1 || length > 3 {
 		err = fmt.Errorf("link element is invalid")
 		return
@@ -81,7 +79,7 @@ func (l link) parse() (srcPath string, dstPath string, mode os.FileMode, err err
 
 	if length > 2 {
 		var parsed uint64
-		parsed, err = strconv.ParseUint(l[2], 0, 64)
+		parsed, err = strconv.ParseUint(params[2], 0, 64)
 		if err != nil {
 			return
 		}
@@ -91,17 +89,17 @@ func (l link) parse() (srcPath string, dstPath string, mode os.FileMode, err err
 		mode = 0755
 	}
 
-	dstPath = os.ExpandEnv(l[0])
+	dstPath = os.ExpandEnv(params[0])
 	srcPath = dstPath
 	if length > 1 {
-		srcPath = os.ExpandEnv(l[1])
+		srcPath = os.ExpandEnv(params[1])
 	}
 
 	return
 }
 
-func (l link) process(srcDir, dstDir string, flags int) error {
-	srcPath, dstPath, mode, err := l.parse()
+func processLink(params []string, srcDir, dstDir string, flags int) error {
+	srcPath, dstPath, mode, err := parseLink(params)
 	if err != nil {
 		return err
 	}

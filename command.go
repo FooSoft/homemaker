@@ -30,10 +30,8 @@ import (
 	"strings"
 )
 
-type command []string
-
-func (c command) process(dir string, flags int) error {
-	args := appendExpEnv(nil, c)
+func processCmd(params []string, dir string, flags int) error {
+	args := appendExpEnv(nil, params)
 
 	var cmd *exec.Cmd
 	switch {

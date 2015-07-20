@@ -53,17 +53,15 @@ func (m macroDef) process(dir string, params []string, flags int) error {
 	return cmd.Run()
 }
 
-type macro []string
-
-func (m macro) process(dir string, conf *config, flags int) error {
-	if len(m) == 0 {
+func processMacro(args []string, dir string, conf *config, flags int) error {
+	if len(args) == 0 {
 		return fmt.Errorf("macro element is invalid")
 	}
 
-	macro, ok := conf.Macros[m[0]]
+	macro, ok := conf.Macros[args[0]]
 	if !ok {
-		return fmt.Errorf("macro dependency not found %s", m[0])
+		return fmt.Errorf("macro dependency not found %s", args[0])
 	}
 
-	return macro.process(dir, m[1:], flags)
+	return macro.process(dir, args[1:], flags)
 }

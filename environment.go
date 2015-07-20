@@ -29,31 +29,29 @@ import (
 	"strings"
 )
 
-type env []string
-
-func (e env) process(flags int) error {
-	items := appendExpEnv(nil, e)
+func processEnv(env []string, flags int) error {
+	args := appendExpEnv(nil, env)
 
 	var value string
 	switch {
-	case len(items) == 0:
+	case len(args) == 0:
 		return fmt.Errorf("enviornment element is invalid")
-	case len(items) == 1:
+	case len(args) == 1:
 		if flags&flagVerbose == flagVerbose {
-			log.Printf("unsetting variable %s", items[0])
+			log.Printf("unsetting variable %s", args[0])
 		}
-		os.Unsetenv(items[0])
+		os.Unsetenv(args[0])
 		return nil
-	case len(items) == 2:
-		value = items[1]
+	case len(args) == 2:
+		value = args[1]
 	default:
-		value = strings.Join(items[1:], ",")
+		value = strings.Join(args[1:], ",")
 	}
 
 	if flags&flagVerbose == flagVerbose {
-		log.Printf("setting variable %s to %s", items[0], value)
+		log.Printf("setting variable %s to %s", args[0], value)
 	}
 
-	os.Setenv(items[0], value)
+	os.Setenv(args[0], value)
 	return nil
 }

@@ -30,5 +30,5 @@ type config struct {
 
 func (c *config) process(srcDir, dstDir, taskName string, flags int) error {
 	c.tasksHandled = make(map[string]bool)
-	return task(taskName).process(srcDir, dstDir, c, flags)
+	return processTask(taskName, srcDir, dstDir, c, flags)
 }
