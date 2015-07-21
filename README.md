@@ -60,7 +60,7 @@ Otherwise, you can use the pre-built binaries for the platforms below:
 *   [linux-amd64](http://foosoft.net/projects/homemaker/dl/homemaker-amd64.tar.gz)
 *   [linux-386](http://foosoft.net/projects/homemaker/dl/homemaker-386.tar.gz)
 
-## Configuration ##
+## Configuration Tutorial ##
 
 Configuration files for Homemaker can be authored in your choice of [TOML](https://github.com/toml-lang/toml),
 [YAML](http://yaml.org/) or [JSON](http://json.org/) markup languages. Being the easiest to read out of the three, TOML
@@ -68,9 +68,9 @@ will be used for the example configuration files. Worry not if you are unfamilia
 to know about it will be shown below.
 
 Let's start by looking at a basic example configuration file, `example.toml`. Notice that Homemaker determines which
-markdown language processor to use based on the extension of your configuration file. Use `.toml` for TOML, `.yaml` for
-YAML, and `.json` for JSON. Having a wrong file extension will prevent your configuration file from being parsed
-correctly.
+markdown language processor to use based on the extension of your configuration file. Use `.toml/.tml` for TOML,
+`.yaml/.yml` for YAML, and `.json` for JSON. Having a wrong file extension will prevent your configuration file from
+being parsed correctly.
 
 ```
 [tasks.default]
@@ -242,6 +242,51 @@ defined on your system, Homemaker defines a couple of extra ones for ease of use
 *   `HM_DEST`
 
     Destination directory for link creation.
+
+Environment variables can also be set within tasks block by assigning them to the `envs` variable. The example below
+demonstrates the setting and clearing of environment variables:
+
+```
+[tasks.default]
+    envs = [
+        ["MYENV1", "foo"],        # set MYENV1 to foo
+        ["MYENV2", "foo", "bar"], # set MYENV2 to foo,bar
+        ["MYENV3"],               # clear MYENV3
+    ]
+```
+
+It should be pointed out that it is possible to reference other environment variables using the syntax shown in the
+first part of this section. This makes it possible to expand variables like `PATH` without overwriting their existing
+value.
+
+## Command Macros ##
+
+It can often be convenient to execute certain commands repeatedly within task blocks to install packages, clone git
+repositories, etc. Homemaker provides macro blocks for this purpose; you can specify a command *prefix* and *suffix*
+that is used to wrap the parameters you provide. For example, you can declare a macro for `apt-get install` and with the
+declaration shown below (much like tasks, macro declarations are global).
+
+```
+[macros.apt-install]
+    prefix = ["sudo", "apt-get", "install", "-y"]
+```
+
+Macros can be referenced from commands by prefixing the macro name with the `@` symbol (it must be the first character
+of the first item of a command). For example, the task below installs several python packages using the macro above:
+
+```
+[tasks.python]
+    cmds = [[
+        "@apt-install",
+        "python-dev",
+        "python-pip",
+        "python3-pip",
+    ]]
+```
+
+This feature makes it possible to reduce the clutter that comes from the repeated commands which must be executed to
+bootstrap a new system. When executed with the `verbose` option, Homemaker will echo the expanded macro commands before
+executing them.
 
 ## Parameters ##
 
