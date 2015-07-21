@@ -44,17 +44,17 @@ func (t *task) process(srcDir, dstDir string, conf *config, flags int) error {
 		}
 	}
 
-	if flags&flagNoLink == 0 {
-		for _, currLink := range t.Links {
-			if err := processLink(currLink, srcDir, dstDir, flags); err != nil {
+	if flags&flagNoCmd == 0 {
+		for _, currCmd := range t.Cmds {
+			if err := processCmd(currCmd, dstDir, conf, flags); err != nil {
 				return err
 			}
 		}
 	}
 
-	if flags&flagNoCmd == 0 {
-		for _, currCmd := range t.Cmds {
-			if err := processCmd(currCmd, dstDir, conf, flags); err != nil {
+	if flags&flagNoLink == 0 {
+		for _, currLink := range t.Links {
+			if err := processLink(currLink, srcDir, dstDir, flags); err != nil {
 				return err
 			}
 		}
