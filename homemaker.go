@@ -32,7 +32,7 @@ import (
 	"os/user"
 	"path"
 
-	"github.com/naoina/toml"
+	"github.com/BurntSushi/toml"
 	"gopkg.in/yaml.v2"
 )
 
@@ -73,7 +73,7 @@ func parseCfg(filename string) (*config, error) {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] conf src\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "Usage: %s [options] conf src\n", path.Base(os.Args[0]))
 	fmt.Fprintf(os.Stderr, "http://foosoft.net/projects/homemaker/\n\n")
 	fmt.Fprintf(os.Stderr, "Parameters:\n")
 	flag.PrintDefaults()
