@@ -56,7 +56,7 @@ func processCmd(params []string, dir string, conf *config, flags int) error {
 		}
 		margs = appendExpEnv(margs, m.Suffix)
 
-		if flags&flagVerbose == flagVerbose {
+		if flags&FLAG_VERBOSE == FLAG_VERBOSE {
 			log.Printf("using macro %s", macroName)
 		}
 
@@ -74,7 +74,7 @@ func processCmd(params []string, dir string, conf *config, flags int) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 
-	if flags&flagVerbose == flagVerbose {
+	if flags&FLAG_VERBOSE == FLAG_VERBOSE {
 		log.Printf("executing command %s %s", cmdName, strings.Join(cmdArgs, " "))
 	}
 

@@ -37,12 +37,12 @@ import (
 )
 
 const (
-	flagClobber = 1 << iota
-	flagForce
-	flagVerbose
-	flagNoCmd
-	flagNoLink
-	flagNoMacro
+	FLAG_CLOBBER = 1 << iota
+	FLAG_FORCE
+	FLAG_VERBOSE
+	FLAG_NO_CMD
+	FLAG_NO_LINK
+	FLAG_NO_MACRO
 )
 
 func parseCfg(filename string) (*config, error) {
@@ -98,19 +98,19 @@ func main() {
 
 	flags := 0
 	if *clobber {
-		flags |= flagClobber
+		flags |= FLAG_CLOBBER
 	}
 	if *force {
-		flags |= flagForce
+		flags |= FLAG_FORCE
 	}
 	if *verbose {
-		flags |= flagVerbose
+		flags |= FLAG_VERBOSE
 	}
 	if *nocmd {
-		flags |= flagNoCmd
+		flags |= FLAG_NO_CMD
 	}
 	if *nolink {
-		flags |= flagNoLink
+		flags |= FLAG_NO_LINK
 	}
 
 	if flag.NArg() == 2 {
