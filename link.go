@@ -33,15 +33,15 @@ import (
 func cleanPath(loc string, flags int) error {
 	if info, _ := os.Lstat(loc); info != nil {
 		if info.Mode()&os.ModeSymlink == os.ModeSymlink {
-			if flags&FLAG_VERBOSE == FLAG_VERBOSE {
+			if flags&flagVerbose == flagVerbose {
 				log.Printf("removing symlink %s", loc)
 			}
 			if err := os.Remove(loc); err != nil {
 				return err
 			}
 		} else {
-			if flags&FLAG_CLOBBER == FLAG_CLOBBER {
-				if flags&FLAG_VERBOSE == FLAG_VERBOSE {
+			if flags&flagClobber == flagClobber {
+				if flags&flagVerbose == flagVerbose {
 					log.Printf("clobbering path %s", loc)
 				}
 				if err := os.RemoveAll(loc); err != nil {
@@ -55,10 +55,10 @@ func cleanPath(loc string, flags int) error {
 }
 
 func createPath(loc string, flags int, mode os.FileMode) error {
-	if flags&FLAG_FORCE == FLAG_FORCE {
+	if flags&flagForce == flagForce {
 		parentDir, _ := path.Split(loc)
 		if _, err := os.Stat(parentDir); os.IsNotExist(err) {
-			if flags&FLAG_VERBOSE == FLAG_VERBOSE {
+			if flags&flagVerbose == flagVerbose {
 				log.Printf("force creating path %s", parentDir)
 			}
 			if err := os.MkdirAll(parentDir, mode); err != nil {
@@ -126,7 +126,7 @@ func processLink(params []string, srcDir, dstDir string, flags int) error {
 		return err
 	}
 
-	if flags&FLAG_VERBOSE == FLAG_VERBOSE {
+	if flags&flagVerbose == flagVerbose {
 		log.Printf("linking %s to %s", srcPathAbs, dstPathAbs)
 	}
 
