@@ -23,9 +23,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func appendExpEnv(dst, src []string) []string {
@@ -43,4 +45,46 @@ func makeAbsPath(path string) string {
 	}
 
 	return path
+}
+
+func prompt(prompts ...string) bool {
+	for {
+		fmt.Printf("%s: [y]es, [n]o? ", strings.Join(prompts, " "))
+
+		var ans string
+		fmt.Scanln(&ans)
+
+		switch strings.ToLower(ans) {
+		case "y":
+			return true
+		case "n":
+			return false
+		}
+	}
+}
+
+func try(task func() error) error {
+	for {
+		err := task()
+		if err == nil {
+			return nil
+		}
+
+	loop:
+		for {
+			fmt.Printf("%s: [a]bort, [r]etry, [c]ancel? ", err)
+
+			var ans string
+			fmt.Scanln(&ans)
+
+			switch strings.ToLower(ans) {
+			case "a":
+				return err
+			case "r":
+				break loop
+			case "c":
+				return nil
+			}
+		}
+	}
 }

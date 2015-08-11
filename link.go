@@ -32,21 +32,21 @@ import (
 
 func cleanPath(loc string, flags int) error {
 	if info, _ := os.Lstat(loc); info != nil {
-		if info.Mode()&os.ModeSymlink != 0 {
-			if flags&flagVerbose != 0 {
-				log.Printf("removing symlink: %s", loc)
-			}
-			if err := os.Remove(loc); err != nil {
-				return err
-			}
-		} else {
-			if flags&flagClobber != 0 {
+		if info.Mode()&os.ModeSymlink == 0 {
+			if flags&flagClobber != 0 || prompt("clobber path", loc) {
 				if flags&flagVerbose != 0 {
 					log.Printf("clobbering path: %s", loc)
 				}
 				if err := os.RemoveAll(loc); err != nil {
 					return err
 				}
+			}
+		} else {
+			if flags&flagVerbose != 0 {
+				log.Printf("removing symlink: %s", loc)
+			}
+			if err := os.Remove(loc); err != nil {
+				return err
 			}
 		}
 	}
@@ -55,9 +55,10 @@ func cleanPath(loc string, flags int) error {
 }
 
 func createPath(loc string, flags int, mode os.FileMode) error {
-	if flags&flagForce != 0 {
-		parentDir, _ := path.Split(loc)
-		if _, err := os.Stat(parentDir); os.IsNotExist(err) {
+	parentDir := path.Dir(loc)
+
+	if _, err := os.Stat(parentDir); os.IsNotExist(err) {
+		if flags&flagForce != 0 || prompt("force create path", parentDir) {
 			if flags&flagVerbose != 0 {
 				log.Printf("force creating path: %s", parentDir)
 			}
@@ -118,11 +119,11 @@ func processLink(params []string, srcDir, dstDir string, flags int) error {
 		return fmt.Errorf("source path %s does not exist in filesystem", srcPathAbs)
 	}
 
-	if err := createPath(dstPathAbs, flags, mode); err != nil {
+	if err := try(func() error { return createPath(dstPathAbs, flags, mode) }); err != nil {
 		return err
 	}
 
-	if err := cleanPath(dstPathAbs, flags); err != nil {
+	if err := try(func() error { return cleanPath(dstPathAbs, flags) }); err != nil {
 		return err
 	}
 
@@ -130,9 +131,7 @@ func processLink(params []string, srcDir, dstDir string, flags int) error {
 		log.Printf("linking %s to %s", srcPathAbs, dstPathAbs)
 	}
 
-	if err := os.Symlink(srcPathAbs, dstPathAbs); err != nil {
-		return err
-	}
-
-	return nil
+	return try(func() error {
+		return os.Symlink(srcPathAbs, dstPathAbs)
+	})
 }

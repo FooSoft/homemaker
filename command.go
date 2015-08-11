@@ -68,15 +68,16 @@ func processCmd(params []string, dir string, conf *config, flags int) error {
 		cmdArgs = args[1:]
 	}
 
-	cmd := exec.Command(cmdName, cmdArgs...)
-	cmd.Dir = dir
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
-
 	if flags&flagVerbose != 0 {
 		log.Printf("executing command: %s %s", cmdName, strings.Join(cmdArgs, " "))
 	}
 
-	return cmd.Run()
+	return try(func() error {
+		cmd := exec.Command(cmdName, cmdArgs...)
+		cmd.Dir = dir
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+		cmd.Stdin = os.Stdin
+		return cmd.Run()
+	})
 }
