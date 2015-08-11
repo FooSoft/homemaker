@@ -353,3 +353,10 @@ provides a more detailed description of what the parameters do.
 
     When something isn't going the way you expect, you can use this parameter to make Homemaker to log everything it is
     doing to console.
+
+## Sample Configurations ##
+
+Below you can find some actual Homemaker configuration files for inspiration. If you would like your configuration
+featured here please send me a pull request and I'll merge it in.
+
+*   [FooSoft](http://foosoft.net/projects/homemaker/dl/config.toml)
