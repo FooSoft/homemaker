@@ -73,7 +73,7 @@ func processTask(taskName, srcDir, dstDir string, conf *config, flags int) error
 
 	t, ok := conf.Tasks[taskName]
 	if !ok {
-		return fmt.Errorf("task not found %s", taskName)
+		return fmt.Errorf("task not found: %s", taskName)
 	}
 
 	return t.process(srcDir, dstDir, conf, flags)

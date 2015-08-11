@@ -37,8 +37,8 @@ func processEnv(env []string, flags int) error {
 	case len(args) == 0:
 		return fmt.Errorf("invalid environment statement")
 	case len(args) == 1:
-		if flags&flagVerbose == flagVerbose {
-			log.Printf("unsetting variable %s", args[0])
+		if flags&flagVerbose != 0 {
+			log.Printf("unsetting variable: %s", args[0])
 		}
 		os.Unsetenv(args[0])
 		return nil
@@ -48,7 +48,7 @@ func processEnv(env []string, flags int) error {
 		value = strings.Join(args[1:], ",")
 	}
 
-	if flags&flagVerbose == flagVerbose {
+	if flags&flagVerbose != 0 {
 		log.Printf("setting variable %s to %s", args[0], value)
 	}
 

@@ -32,17 +32,17 @@ import (
 
 func cleanPath(loc string, flags int) error {
 	if info, _ := os.Lstat(loc); info != nil {
-		if info.Mode()&os.ModeSymlink == os.ModeSymlink {
-			if flags&flagVerbose == flagVerbose {
-				log.Printf("removing symlink %s", loc)
+		if info.Mode()&os.ModeSymlink != 0 {
+			if flags&flagVerbose != 0 {
+				log.Printf("removing symlink: %s", loc)
 			}
 			if err := os.Remove(loc); err != nil {
 				return err
 			}
 		} else {
-			if flags&flagClobber == flagClobber {
-				if flags&flagVerbose == flagVerbose {
-					log.Printf("clobbering path %s", loc)
+			if flags&flagClobber != 0 {
+				if flags&flagVerbose != 0 {
+					log.Printf("clobbering path: %s", loc)
 				}
 				if err := os.RemoveAll(loc); err != nil {
 					return err
@@ -55,11 +55,11 @@ func cleanPath(loc string, flags int) error {
 }
 
 func createPath(loc string, flags int, mode os.FileMode) error {
-	if flags&flagForce == flagForce {
+	if flags&flagForce != 0 {
 		parentDir, _ := path.Split(loc)
 		if _, err := os.Stat(parentDir); os.IsNotExist(err) {
-			if flags&flagVerbose == flagVerbose {
-				log.Printf("force creating path %s", parentDir)
+			if flags&flagVerbose != 0 {
+				log.Printf("force creating path: %s", parentDir)
 			}
 			if err := os.MkdirAll(parentDir, mode); err != nil {
 				return err
@@ -126,7 +126,7 @@ func processLink(params []string, srcDir, dstDir string, flags int) error {
 		return err
 	}
 
-	if flags&flagVerbose == flagVerbose {
+	if flags&flagVerbose != 0 {
 		log.Printf("linking %s to %s", srcPathAbs, dstPathAbs)
 	}
 

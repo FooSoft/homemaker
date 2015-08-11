@@ -47,7 +47,7 @@ func processCmd(params []string, dir string, conf *config, flags int) error {
 
 		m, ok := conf.Macros[macroName]
 		if !ok {
-			return fmt.Errorf("macro not found %s", macroName)
+			return fmt.Errorf("macro not found: %s", macroName)
 		}
 
 		margs := appendExpEnv(nil, m.Prefix)
@@ -56,8 +56,8 @@ func processCmd(params []string, dir string, conf *config, flags int) error {
 		}
 		margs = appendExpEnv(margs, m.Suffix)
 
-		if flags&flagVerbose == flagVerbose {
-			log.Printf("using macro %s", macroName)
+		if flags&flagVerbose != 0 {
+			log.Printf("using macro: %s", macroName)
 		}
 
 		return processCmd(margs, dir, conf, flags)
@@ -74,8 +74,8 @@ func processCmd(params []string, dir string, conf *config, flags int) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 
-	if flags&flagVerbose == flagVerbose {
-		log.Printf("executing command %s %s", cmdName, strings.Join(cmdArgs, " "))
+	if flags&flagVerbose != 0 {
+		log.Printf("executing command: %s %s", cmdName, strings.Join(cmdArgs, " "))
 	}
 
 	return cmd.Run()
