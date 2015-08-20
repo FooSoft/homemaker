@@ -313,20 +313,20 @@ executing them.
 Executing Homemaker with the `-help` command line argument will trigger online help to be displayed. The list below
 provides a more detailed description of what the parameters do.
 
-*   `clobber`
+*   **clobber**
 
     By default, Homemaker will only remove identically-named symlinks at the destination directory. Using this parameter
     will cause Homemaker to be more aggressive and delete clashing files and entire directories as well. This can be
     useful for getting rid of the default configuration settings some applications write when you run them for the first
     time, but should obviously be used with caution.
 
-*  `dest`
+*   **dest**
 
     This parameter specifies destination where Homemaker is to create symlinks. This will default to the home directory
     for the current user, and as long as you are just using this application to manage dot-files, will probably never
     need to be changed.
 
-*   `force`
+*   **force**
 
     Sometimes dot-files for an application are nested within parent directories that must exist in order to allow the
     symlink to be successfully created (for example the `.config` directory in `.config/vlc`). As this is the expected
@@ -336,20 +336,20 @@ provides a more detailed description of what the parameters do.
     `[".ssh/id_rsa.pub", ".ssh_flatline/id_rsa.pub", "0700"]`. Notice that you can specify permissions in octal notation
     by adding a leading zero value (the `0x` prefix signifies hexadecimal).
 
-*   `nocmd`
+*   **nocmd**
 
     Do not execute commands for the `cmds` blocks inside of tasks.
 
-*   `nolink`
+*   **nolink**
 
     Do not create links for the `links` blocks inside of tasks.
 
-*   `task`
+*   **task**
 
     This parameter is used to specify which task Homemaker will process when executed. It defaults to the `default`
     task, which should be used when creating a configuration file that does not have system-specific tasks specified.
 
-*   `verbose`
+*   **verbose**
 
     When something isn't going the way you expect, you can use this parameter to make Homemaker to log everything it is
     doing to console.
