@@ -1,11 +1,11 @@
 # Homemaker #
 
-Homemaker is a tool for straightforward and efficient management of *nix configuration files found in the user's home
-directory, commonly known as [dot-files](https://en.wikipedia.org/wiki/Dot-file). It can also be readily used for
-general purpose system bootstrapping (installing packages, cloning repositories, etc). This tool is written in
-[Golang](https://golang.org/), requires no installation, has no dependencies and makes use of simple configuration file
-format inspired by [make](https://en.wikipedia.org/wiki/Make_%28software%29) to generate symlinks and execute system
-commands to aid in configuring a new system for use.
+Homemaker is a lightweight tool for straightforward and efficient management of *nix configuration files found in the
+user's home directory, commonly known as [dot-files](https://en.wikipedia.org/wiki/Dot-file). It can also be readily
+used for general purpose system bootstrapping, including installing packages, cloning repositories, etc. This tool is
+written in [Golang](https://golang.org/), requires no installation, has no dependencies and makes use of simple
+configuration file structure inspired by [make](https://en.wikipedia.org/wiki/Make_%28software%29) to generate symlinks
+and execute system commands to aid in configuring a new system for use.
 
 ![](http://foosoft.net/projects/homemaker/img/demo.gif)
 
@@ -44,11 +44,12 @@ Specifically, I required a solution that had the following characteristics:
     otherwise known as shell scripts. Scripting languages can work well but are closely tied to the environment in which
     they are executed.
 
-It became apparent to me that utility which I was looking for did not exist. After making due with a simple Python
-script that I hacked together, I decided that this problem deserved a clean, formal solution. I decided to create this
-new utility in Go; in addition to the language itself being clear and easy to understand, executables built with the Go
-compiler are statically linked, making them highly portable. The result of my work is Homemaker; I hope that you find it
-suitable for your needs.
+It soon became apparent to me that utility which I was searching for did not exist. After making due with a simple
+Python script that I hacked together in a couple of hours, I decided that this problem deserved a clean, formal
+solution. I settled on building this new utility in Go; in addition to the language syntax being clear and easy to
+understand, executables built by the Go compiler are statically linked, making them highly portable. Just drop the
+binary on your system and you are ready! The result of my work is this project; I hope that you find it suitable for
+your needs.
 
 ## Installation ##
 
@@ -120,15 +121,25 @@ To get a better idea of what `/mnt/data/config` is, let's look at the in-program
 
 ```
 Usage: homemaker [options] conf src
+http://foosoft.net/projects/homemaker/
 
 Parameters:
-  -clobber=false: delete files and directories at target
-  -dest="/home/alex": target directory for tasks
-  -force=true: create parent directories to target
-  -nocmd=false: don't execute commands
-  -nolink=false: don't create links
-  -task="default": name of task to execute
-  -verbose=false: verbose output
+  -clobber
+        delete files and directories at target
+  -dest string
+        target directory for tasks (default "/home/alex")
+  -force
+        create parent directories to target (default true)
+  -nocmd
+        don't execute commands
+  -nolink
+        don't create links
+  -task string
+        name of task to execute (default "default")
+  -variant string
+        execution variant
+  -verbose
+        verbose output
 ```
 
 For the purpose of our illustration, `src` is defined on the command line to be `/mnt/data/config`; namely the source
@@ -200,7 +211,6 @@ shown below:
         [".config/syncthing", ".config/syncthing_wintermute"],
         [".ssh", ".ssh_wintermute"],
     ]
-
 ```
 
 Homemaker will process the dependency tasks before processing the task itself.
@@ -295,7 +305,85 @@ This feature makes it possible to reduce the clutter that comes from the repeate
 bootstrap a new system. When executed with the `verbose` option, Homemaker will echo the expanded macro commands before
 executing them.
 
-## Parameters ##
+## Task and Macro Variants ##
+
+If you wish to use this tool in a truly cross-platform and cross-distribution manner without authoring multiple
+configuration files, you will have to provide information to Homemaker about the environment it is running in. Different
+operating systems and distributions use different package managers and package names; we solve this problem with task
+and macro *variants*.
+
+For example, if you want to write a generic macro for installing packages that works on both Ubuntu and Arch Linux, you
+can define the following variants:
+
+```
+[macros.install__ubuntu]
+    prefix = [["sudo", "apt-get", "install"]]
+
+[macros.install__arch]
+    prefix = [["sudo", "pacman", "-S"]]
+```
+
+The double underscore characters signify that the following identifier is a *variant decorator*. For the most part, you
+only have to think about variants when you are defining your tasks and macros, not when using them. For example, to see
+how to use the `install` macro that we just created, examine the configuration below:
+
+```
+[tasks.tmux]
+    cmds = [["@install", "tmux"]]
+```
+
+In order for this example to work properly, you must specify a variant on the command line as shown below. Notice that
+failing to specify any variant will cause Homemaker try to look for a non-existing, undecorated `install` macro, leading
+to failure.
+
+```
+$ homemaker --variant=ubuntu example.toml /mnt/data/config
+```
+
+Tasks can be be decorated just like commands:
+
+```
+[tasks.vim__server]
+    cmds = [["@install", "vim-nox"]]
+
+[tasks.vim]
+    cmds = [["@install", "gvim"]]
+```
+
+In the above example, we avoid installing `gvim` on the server variant, where the X windowing system is not installed.
+Notice that Homemaker will only execute the best match out of the available task or macro options. If the provided
+variant is not a match to any available tasks or macros, the base undecorated version will be used instead if it is
+available.
+
+The command below will execute `vim__server`:
+```
+$ homemaker --variant=server example.toml /mnt/data/config
+```
+
+Both of the commands below will execute `vim`:
+```
+$ homemaker --variant=foobar example.toml /mnt/data/config
+$ homemaker example.toml /mnt/data/config
+```
+
+If for some reason you wish to explicitly reference the base task from the decorated task, you can add a dependency that
+contains a *variant override* as shown in the somewhat contrived examples below:
+
+```
+[tasks.foo]
+[tasks.foo__specific]
+    deps = ["foo__"]         # executes foo and foo_specific
+
+[tasks.bar__specific]
+[tasks.bar]
+    deps = ["bar__specific"] # executes bar_specific and bar
+```
+
+Although variants are somewhat of an advanced topic as far as Homemaker features are concerned, they can be used to
+provide some basic conditional functionality to your configuration file without significantly increasing complexity for
+the user.
+
+## Command Line Parameters ##
 
 Executing Homemaker with the `-help` command line argument will trigger online help to be displayed. The list below
 provides a more detailed description of what the parameters do.
@@ -335,6 +423,12 @@ provides a more detailed description of what the parameters do.
 
     This parameter is used to specify which task Homemaker will process when executed. It defaults to the `default`
     task, which should be used when creating a configuration file that does not have system-specific tasks specified.
+
+*   **variant**
+
+    When using homemaker across different operating systems or distributions it can be useful to be able to perform
+    conditional command and task execution, allowing for variation in things like package names and package management
+    tools. This parameter is used for specifying the name of the variant that should be used.
 
 *   **verbose**
 
