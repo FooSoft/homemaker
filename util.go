@@ -55,7 +55,7 @@ func makeVariantNames(name, variant string) []string {
 
 	names := []string{name}
 	if len(variant) > 0 {
-		names = append(names, fmt.Sprint(name, "__", variant))
+		names = []string{fmt.Sprint(name, "__", variant), name}
 	}
 
 	return names

@@ -36,7 +36,6 @@ type macro struct {
 }
 
 func processCmdMacro(macroName string, args []string, conf *config) error {
-	var found bool
 	for _, mn := range makeVariantNames(macroName, conf.variant) {
 		m, ok := conf.Macros[mn]
 		if !ok {
@@ -54,11 +53,7 @@ func processCmdMacro(macroName string, args []string, conf *config) error {
 		return processCmd(margs, conf)
 	}
 
-	if !found {
-		return fmt.Errorf("macro or variant not found: %s", macroName)
-	}
-
-	return nil
+	return fmt.Errorf("macro or variant not found: %s", macroName)
 }
 
 func processCmd(params []string, conf *config) error {

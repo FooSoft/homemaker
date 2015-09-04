@@ -67,7 +67,6 @@ func (t *task) process(conf *config) error {
 }
 
 func processTask(taskName string, conf *config) error {
-	var found bool
 	for _, tn := range makeVariantNames(taskName, conf.variant) {
 		t, ok := conf.Tasks[tn]
 		if !ok {
@@ -78,23 +77,17 @@ func processTask(taskName string, conf *config) error {
 			if conf.flags&flagVerbose != 0 {
 				log.Printf("skipping processed task: %s", tn)
 			}
-		} else {
-			if conf.flags&flagVerbose != 0 {
-				log.Printf("processing task: %s", tn)
-			}
 
-			conf.handled[tn] = true
-			if err := t.process(conf); err != nil {
-				return err
-			}
+			return nil
 		}
 
-		found = true
+		if conf.flags&flagVerbose != 0 {
+			log.Printf("processing task: %s", tn)
+		}
+
+		conf.handled[tn] = true
+		return t.process(conf)
 	}
 
-	if !found {
-		return fmt.Errorf("task or variant not found: %s", taskName)
-	}
-
-	return nil
+	return fmt.Errorf("task or variant not found: %s", taskName)
 }
