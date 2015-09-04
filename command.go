@@ -35,6 +35,32 @@ type macro struct {
 	Suffix []string
 }
 
+func processCmdMacro(macroName string, args []string, conf *config) error {
+	var found bool
+	for _, mn := range makeVariantNames(macroName, conf.variant) {
+		m, ok := conf.Macros[mn]
+		if !ok {
+			continue
+		}
+
+		margs := appendExpEnv(nil, m.Prefix)
+		margs = appendExpEnv(margs, args)
+		margs = appendExpEnv(margs, m.Suffix)
+
+		if conf.flags&flagVerbose != 0 {
+			log.Printf("using macro: %s", mn)
+		}
+
+		return processCmd(margs, conf)
+	}
+
+	if !found {
+		return fmt.Errorf("macro or variant not found: %s", macroName)
+	}
+
+	return nil
+}
+
 func processCmd(params []string, conf *config) error {
 	args := appendExpEnv(nil, params)
 	if len(args) == 0 {
@@ -43,24 +69,16 @@ func processCmd(params []string, conf *config) error {
 
 	cmdName := args[0]
 	if strings.HasPrefix(cmdName, "@") {
-		macroName := strings.TrimPrefix(cmdName, "@")
+		var (
+			macroName = strings.TrimPrefix(cmdName, "@")
+			macroArgs []string
+		)
 
-		m, ok := conf.Macros[macroName]
-		if !ok {
-			return fmt.Errorf("macro not found: %s", macroName)
-		}
-
-		margs := appendExpEnv(nil, m.Prefix)
 		if len(args) > 1 {
-			margs = appendExpEnv(margs, args[1:])
-		}
-		margs = appendExpEnv(margs, m.Suffix)
-
-		if conf.flags&flagVerbose != 0 {
-			log.Printf("using macro: %s", macroName)
+			macroArgs = args[1:]
 		}
 
-		return processCmd(margs, conf)
+		return processCmdMacro(macroName, macroArgs, conf)
 	}
 
 	var cmdArgs []string

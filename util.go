@@ -47,6 +47,16 @@ func makeAbsPath(path string) string {
 	return path
 }
 
+func makeVariantNames(name, variant string) []string {
+	names := []string{name}
+
+	if len(variant) > 0 {
+		names = append(names, fmt.Sprint(name, "%", variant))
+	}
+
+	return names
+}
+
 func prompt(prompts ...string) bool {
 	for {
 		fmt.Printf("%s: [y]es, [n]o? ", strings.Join(prompts, " "))

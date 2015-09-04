@@ -37,6 +37,12 @@ type task struct {
 }
 
 func (t *task) process(conf *config) error {
+	if t.handled {
+		return nil
+	}
+
+	t.handled = true
+
 	for _, currTask := range t.Deps {
 		if err := processTask(currTask, conf); err != nil {
 			return err
@@ -69,30 +75,21 @@ func (t *task) process(conf *config) error {
 }
 
 func processTask(taskName string, conf *config) error {
-	taskNames := []string{taskName}
-	if len(conf.variant) > 0 {
-		taskNames = append(taskNames, fmt.Sprint(taskName, "%", conf.variant))
-	}
-
 	var found bool
-	for _, tn := range taskNames {
+	for _, tn := range makeVariantNames(taskName, conf.variant) {
 		t, ok := conf.Tasks[tn]
 		if !ok {
 			continue
 		}
 
-		if t.handled {
-			found = true
-			continue
-		}
+		if !t.handled {
+			if conf.flags&flagVerbose != 0 {
+				log.Printf("processing task: %s", tn)
+			}
 
-		if conf.flags&flagVerbose != 0 {
-			log.Printf("executing task: %s", tn)
-		}
-
-		t.handled = true
-		if err := t.process(conf); err != nil {
-			return err
+			if err := t.process(conf); err != nil {
+				return err
+			}
 		}
 
 		found = true
