@@ -32,17 +32,9 @@ type task struct {
 	Links [][]string
 	Cmds  [][]string
 	Envs  [][]string
-
-	handled bool
 }
 
 func (t *task) process(conf *config) error {
-	if t.handled {
-		return nil
-	}
-
-	t.handled = true
-
 	for _, currTask := range t.Deps {
 		if err := processTask(currTask, conf); err != nil {
 			return err
@@ -82,7 +74,7 @@ func processTask(taskName string, conf *config) error {
 			continue
 		}
 
-		if t.handled {
+		if conf.handled[tn] {
 			if conf.flags&flagVerbose != 0 {
 				log.Printf("skipping processed task: %s", tn)
 			}
@@ -91,6 +83,7 @@ func processTask(taskName string, conf *config) error {
 				log.Printf("processing task: %s", tn)
 			}
 
+			conf.handled[tn] = true
 			if err := t.process(conf); err != nil {
 				return err
 			}
