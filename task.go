@@ -22,7 +22,10 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 type task struct {
 	Deps  []string
@@ -66,12 +69,12 @@ func (t *task) process(conf *config) error {
 }
 
 func processTask(taskName string, conf *config) error {
-	var taskNames []string
+	taskNames := []string{taskName}
 	if len(conf.variant) > 0 {
 		taskNames = append(taskNames, fmt.Sprint(taskName, "%", conf.variant))
 	}
-	taskNames = append(taskNames, taskName)
 
+	var found bool
 	for _, tn := range taskNames {
 		t, ok := conf.Tasks[tn]
 		if !ok {
@@ -79,12 +82,25 @@ func processTask(taskName string, conf *config) error {
 		}
 
 		if t.handled {
-			return nil
+			found = true
+			continue
+		}
+
+		if conf.flags&flagVerbose != 0 {
+			log.Printf("executing task: %s", tn)
 		}
 
 		t.handled = true
-		return t.process(conf)
+		if err := t.process(conf); err != nil {
+			return err
+		}
+
+		found = true
 	}
 
-	return fmt.Errorf("task or variant not found: %s", taskName)
+	if !found {
+		return fmt.Errorf("task or variant not found: %s", taskName)
+	}
+
+	return nil
 }
