@@ -29,6 +29,8 @@ type task struct {
 	Links [][]string
 	Cmds  [][]string
 	Envs  [][]string
+
+	handled bool
 }
 
 func (t *task) process(conf *config) error {
@@ -64,17 +66,25 @@ func (t *task) process(conf *config) error {
 }
 
 func processTask(taskName string, conf *config) error {
-	handled, ok := conf.handled[taskName]
-	if ok && handled {
-		return nil
+	var taskNames []string
+	if len(conf.variant) > 0 {
+		taskNames = append(taskNames, fmt.Sprint(taskName, "%", conf.variant))
+	}
+	taskNames = append(taskNames, taskName)
+
+	for _, tn := range taskNames {
+		t, ok := conf.Tasks[tn]
+		if !ok {
+			continue
+		}
+
+		if t.handled {
+			return nil
+		}
+
+		t.handled = true
+		return t.process(conf)
 	}
 
-	conf.handled[taskName] = true
-
-	t, ok := conf.Tasks[taskName]
-	if !ok {
-		return fmt.Errorf("task not found: %s", taskName)
-	}
-
-	return t.process(conf)
+	return fmt.Errorf("task or variant not found: %s", taskName)
 }

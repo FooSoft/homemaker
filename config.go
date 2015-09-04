@@ -33,10 +33,9 @@ import (
 )
 
 type config struct {
-	Tasks  map[string]task
-	Macros map[string]macro
+	Tasks  map[string]*task
+	Macros map[string]*macro
 
-	handled map[string]bool
 	srcDir  string
 	dstDir  string
 	variant string
@@ -49,7 +48,7 @@ func newConfig(filename string) (*config, error) {
 		return nil, err
 	}
 
-	conf := &config{handled: make(map[string]bool)}
+	conf := new(config)
 	switch path.Ext(filename) {
 	case ".json":
 		if err := json.Unmarshal(bytes, &conf); err != nil {
