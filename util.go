@@ -48,9 +48,14 @@ func makeAbsPath(path string) string {
 }
 
 func makeVariantNames(name, variant string) []string {
-	names := []string{name, strings.TrimSuffix(name, "__")}
+	if nameParts := strings.Split(name, "__"); len(nameParts) > 1 {
+		variant = nameParts[len(nameParts)-1]
+		name = strings.Join(nameParts[:len(nameParts)-1], "")
+	}
+
+	names := []string{name}
 	if len(variant) > 0 && !strings.HasSuffix(name, "__") {
-		names = []string{fmt.Sprint(name, "__", variant), name, strings.TrimSuffix(name, "__")}
+		names = []string{fmt.Sprint(name, "__", variant), name}
 	}
 
 	return names
