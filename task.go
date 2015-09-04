@@ -82,7 +82,11 @@ func processTask(taskName string, conf *config) error {
 			continue
 		}
 
-		if !t.handled {
+		if t.handled {
+			if conf.flags&flagVerbose != 0 {
+				log.Printf("skipping processed task: %s", tn)
+			}
+		} else {
 			if conf.flags&flagVerbose != 0 {
 				log.Printf("processing task: %s", tn)
 			}
