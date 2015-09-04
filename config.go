@@ -22,13 +22,50 @@
 
 package main
 
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"path"
+
+	"github.com/naoina/toml"
+	"gopkg.in/yaml.v2"
+)
+
 type config struct {
-	Tasks        map[string]task
-	Macros       map[string]macro
-	tasksHandled map[string]bool
+	Tasks  map[string]task
+	Macros map[string]macro
+
+	handled map[string]bool
+	srcDir  string
+	dstDir  string
+	variant string
+	flags   int
 }
 
-func (c *config) process(srcDir, dstDir, taskName string, flags int) error {
-	c.tasksHandled = make(map[string]bool)
-	return processTask(taskName, srcDir, dstDir, c, flags)
+func newConfig(filename string) (*config, error) {
+	bytes, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	conf := &config{handled: make(map[string]bool)}
+	switch path.Ext(filename) {
+	case ".json":
+		if err := json.Unmarshal(bytes, &conf); err != nil {
+			return nil, err
+		}
+	case ".toml", ".tml":
+		if err := toml.Unmarshal(bytes, &conf); err != nil {
+			return nil, err
+		}
+	case ".yaml", ".yml":
+		if err := yaml.Unmarshal(bytes, &conf); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("unsupported configuration file format")
+	}
+
+	return conf, nil
 }

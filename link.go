@@ -99,7 +99,7 @@ func parseLink(params []string) (srcPath, dstPath string, mode os.FileMode, err 
 	return
 }
 
-func processLink(params []string, srcDir, dstDir string, flags int) error {
+func processLink(params []string, conf *config) error {
 	srcPath, dstPath, mode, err := parseLink(params)
 	if err != nil {
 		return err
@@ -107,27 +107,27 @@ func processLink(params []string, srcDir, dstDir string, flags int) error {
 
 	srcPathAbs := srcPath
 	if !path.IsAbs(srcPathAbs) {
-		srcPathAbs = path.Join(srcDir, srcPath)
+		srcPathAbs = path.Join(conf.srcDir, srcPath)
 	}
 
 	dstPathAbs := dstPath
 	if !path.IsAbs(dstPathAbs) {
-		dstPathAbs = path.Join(dstDir, dstPath)
+		dstPathAbs = path.Join(conf.dstDir, dstPath)
 	}
 
 	if _, err := os.Stat(srcPathAbs); os.IsNotExist(err) {
 		return fmt.Errorf("source path %s does not exist in filesystem", srcPathAbs)
 	}
 
-	if err := try(func() error { return createPath(dstPathAbs, flags, mode) }); err != nil {
+	if err := try(func() error { return createPath(dstPathAbs, conf.flags, mode) }); err != nil {
 		return err
 	}
 
-	if err := try(func() error { return cleanPath(dstPathAbs, flags) }); err != nil {
+	if err := try(func() error { return cleanPath(dstPathAbs, conf.flags) }); err != nil {
 		return err
 	}
 
-	if flags&flagVerbose != 0 {
+	if conf.flags&flagVerbose != 0 {
 		log.Printf("linking %s to %s", srcPathAbs, dstPathAbs)
 	}
 

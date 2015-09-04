@@ -23,17 +23,12 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/user"
 	"path"
-
-	"github.com/BurntSushi/toml"
-	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -44,33 +39,6 @@ const (
 	flagNoLink
 	flagNoMacro
 )
-
-func parseCfg(filename string) (*config, error) {
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	conf := &config{}
-	switch path.Ext(filename) {
-	case ".json":
-		if err := json.Unmarshal(bytes, &conf); err != nil {
-			return nil, err
-		}
-	case ".toml", ".tml":
-		if err := toml.Unmarshal(bytes, &conf); err != nil {
-			return nil, err
-		}
-	case ".yaml", ".yml":
-		if err := yaml.Unmarshal(bytes, &conf); err != nil {
-			return nil, err
-		}
-	default:
-		return nil, fmt.Errorf("unsupported configuration file format")
-	}
-
-	return conf, nil
-}
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] conf src\n", path.Base(os.Args[0]))
@@ -92,6 +60,7 @@ func main() {
 	verbose := flag.Bool("verbose", false, "verbose output")
 	nocmd := flag.Bool("nocmd", false, "don't execute commands")
 	nolink := flag.Bool("nolink", false, "don't create links")
+	variant := flag.String("variant", "", "execution variant")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -114,21 +83,25 @@ func main() {
 	}
 
 	if flag.NArg() == 2 {
-		confDirAbs := makeAbsPath(flag.Arg(0))
-		srcDirAbs := makeAbsPath(flag.Arg(1))
-		dstDirAbs := makeAbsPath(*dstDir)
+		confFile := makeAbsPath(flag.Arg(0))
 
-		os.Setenv("HM_CONFIG", confDirAbs)
-		os.Setenv("HM_TASK", *taskName)
-		os.Setenv("HM_SRC", srcDirAbs)
-		os.Setenv("HM_DEST", dstDirAbs)
-
-		conf, err := parseCfg(confDirAbs)
+		conf, err := newConfig(confFile)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if err := conf.process(srcDirAbs, dstDirAbs, *taskName, flags); err != nil {
+		conf.srcDir = makeAbsPath(flag.Arg(1))
+		conf.dstDir = makeAbsPath(*dstDir)
+		conf.variant = *variant
+		conf.flags = flags
+
+		os.Setenv("HM_CONFIG", confFile)
+		os.Setenv("HM_TASK", *taskName)
+		os.Setenv("HM_SRC", conf.srcDir)
+		os.Setenv("HM_DEST", conf.dstDir)
+		os.Setenv("HM_VARIANT", conf.variant)
+
+		if err := processTask(*taskName, conf); err != nil {
 			log.Fatal(err)
 		}
 	} else {

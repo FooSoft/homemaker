@@ -31,30 +31,30 @@ type task struct {
 	Envs  [][]string
 }
 
-func (t *task) process(srcDir, dstDir string, conf *config, flags int) error {
+func (t *task) process(conf *config) error {
 	for _, currTask := range t.Deps {
-		if err := processTask(currTask, srcDir, dstDir, conf, flags); err != nil {
+		if err := processTask(currTask, conf); err != nil {
 			return err
 		}
 	}
 
 	for _, currEnv := range t.Envs {
-		if err := processEnv(currEnv, flags); err != nil {
+		if err := processEnv(currEnv, conf); err != nil {
 			return err
 		}
 	}
 
-	if flags&flagNoCmd == 0 {
+	if conf.flags&flagNoCmd == 0 {
 		for _, currCmd := range t.Cmds {
-			if err := processCmd(currCmd, dstDir, conf, flags); err != nil {
+			if err := processCmd(currCmd, conf); err != nil {
 				return err
 			}
 		}
 	}
 
-	if flags&flagNoLink == 0 {
+	if conf.flags&flagNoLink == 0 {
 		for _, currLink := range t.Links {
-			if err := processLink(currLink, srcDir, dstDir, flags); err != nil {
+			if err := processLink(currLink, conf); err != nil {
 				return err
 			}
 		}
@@ -63,18 +63,18 @@ func (t *task) process(srcDir, dstDir string, conf *config, flags int) error {
 	return nil
 }
 
-func processTask(taskName, srcDir, dstDir string, conf *config, flags int) error {
-	handled, ok := conf.tasksHandled[taskName]
+func processTask(taskName string, conf *config) error {
+	handled, ok := conf.handled[taskName]
 	if ok && handled {
 		return nil
 	}
 
-	conf.tasksHandled[taskName] = true
+	conf.handled[taskName] = true
 
 	t, ok := conf.Tasks[taskName]
 	if !ok {
 		return fmt.Errorf("task not found: %s", taskName)
 	}
 
-	return t.process(srcDir, dstDir, conf, flags)
+	return t.process(conf)
 }

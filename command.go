@@ -35,7 +35,7 @@ type macro struct {
 	Suffix []string
 }
 
-func processCmd(params []string, dir string, conf *config, flags int) error {
+func processCmd(params []string, conf *config) error {
 	args := appendExpEnv(nil, params)
 	if len(args) == 0 {
 		return fmt.Errorf("invalid command statement")
@@ -56,11 +56,11 @@ func processCmd(params []string, dir string, conf *config, flags int) error {
 		}
 		margs = appendExpEnv(margs, m.Suffix)
 
-		if flags&flagVerbose != 0 {
+		if conf.flags&flagVerbose != 0 {
 			log.Printf("using macro: %s", macroName)
 		}
 
-		return processCmd(margs, dir, conf, flags)
+		return processCmd(margs, conf)
 	}
 
 	var cmdArgs []string
@@ -68,13 +68,13 @@ func processCmd(params []string, dir string, conf *config, flags int) error {
 		cmdArgs = args[1:]
 	}
 
-	if flags&flagVerbose != 0 {
+	if conf.flags&flagVerbose != 0 {
 		log.Printf("executing command: %s %s", cmdName, strings.Join(cmdArgs, " "))
 	}
 
 	return try(func() error {
 		cmd := exec.Command(cmdName, cmdArgs...)
-		cmd.Dir = dir
+		cmd.Dir = conf.dstDir
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
 		cmd.Stdin = os.Stdin
