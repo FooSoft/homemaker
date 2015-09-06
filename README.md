@@ -4,10 +4,11 @@ Homemaker is a lightweight tool for straightforward and efficient management of 
 user's home directory, commonly known as [dot-files](https://en.wikipedia.org/wiki/Dot-file). It can also be readily
 used for general purpose system bootstrapping, including installing packages, cloning repositories, etc. This tool is
 written in [Golang](https://golang.org/), requires no installation, has no dependencies and makes use of simple
-configuration file structure inspired by [make](https://en.wikipedia.org/wiki/Make_%28software%29) to generate symlinks
-and execute system commands to aid in configuring a new system for use.
+configuration file structure inspired by [make](https://en.wikipedia.org/wiki/Make_%28software%29) to generate
+[symlinks](https://en.wikipedia.org/wiki/Symbolic_link) and execute system commands to aid in configuring a new system
+for use.
 
-![](http://foosoft.net/projects/homemaker/img/demo.gif)
+![](img/demo.gif)
 
 ## Motivation ##
 
@@ -44,11 +45,11 @@ Specifically, I required a solution that had the following characteristics:
     otherwise known as shell scripts. Scripting languages can work well but are closely tied to the environment in which
     they are executed.
 
-It soon became apparent to me that utility which I was searching for did not exist. After making due with a simple
-Python script that I hacked together in a couple of hours, I decided that this problem deserved a clean, formal
-solution. I settled on building this new utility in Go; in addition to the language syntax being clear and easy to
-understand, executables built by the Go compiler are statically linked, making them highly portable. Just drop the
-binary on your system and you are ready! The result of my work is this project; I hope that you find it suitable for
+It soon became apparent to me that utility which met all of my requirements for simply did not exist. After making due
+with a hastily hacked-together Python script for a couple of months, I decided that this problem deserved a clean,
+formal solution. I settled on building this new utility in Go because in addition to the language syntax being clear and
+easy to understand, executables built by the Go compiler are statically linked, making them highly portable. Just drop
+the binary on your system and you are ready! The result of my work is Homemaker; I hope that you find it suitable for
 your needs.
 
 ## Installation ##
@@ -68,7 +69,7 @@ Otherwise, you can use the pre-built binaries for the platforms below:
  * [homemaker_windows_386.zip](http://dl.foosoft.net/homemaker/homemaker_windows_386.zip)
  * [homemaker_windows_amd64.zip](http://dl.foosoft.net/homemaker/homemaker_windows_amd64.zip)
 
-## Configuration Tutorial ##
+## Configuration Basics ##
 
 Configuration files for Homemaker can be authored in your choice of [TOML](https://github.com/toml-lang/toml),
 [YAML](http://yaml.org/) or [JSON](http://json.org/) markup languages. Being the easiest to read out of the three, TOML
@@ -76,9 +77,9 @@ will be used for the example configuration files. Worry not if you are unfamilia
 to know about it will be shown below.
 
 Let's start by looking at a basic example configuration file, `example.toml`. Notice that Homemaker determines which
-markdown language processor to use based on the extension of your configuration file. Use `.toml/.tml` for TOML,
-`.yaml/.yml` for YAML, and `.json` for JSON. Having a wrong file extension will prevent your configuration file from
-being parsed correctly.
+markdown language processor to use based on the extension of your c:nfiguration file. Use `.toml/.tml` for TOML,
+`.yaml/.yml` for YAML, and `.json` for JSON. Be aware that specifying an incorrect file extension will prevent your
+configuration file from being parsed correctly.
 
 ```
 [tasks.default]
@@ -111,10 +112,10 @@ We could have just as easily written this configuration in JSON (or YAML for tha
 }
 ```
 
-To create symlinks based on this configuration we invoke the `homemaker` utility:
+To create symlinks based on the contents of the TOML file from before, we invoke the `homemaker` utility as follows:
 
 ```
-$ homemaker example.json /mnt/data/config
+$ homemaker example.toml /mnt/data/config
 ```
 
 To get a better idea of what `/mnt/data/config` is, let's look at the in-program documentation:
@@ -130,14 +131,16 @@ Parameters:
         target directory for tasks (default "/home/alex")
   -force
         create parent directories to target (default true)
-  -nocmd
+  -nocmds
         don't execute commands
-  -nolink
+  -nolinks
         don't create links
   -task string
         name of task to execute (default "default")
+  -unlink
+        remove existing links instead of creating them
   -variant string
-        execution variant
+        execution variant for tasks and macros
   -verbose
         verbose output
 ```
@@ -145,8 +148,8 @@ Parameters:
 For the purpose of our illustration, `src` is defined on the command line to be `/mnt/data/config`; namely the source
 directory where your dot-files live (this will be your Git repository, Dropbox folder, rsync root, etc.). The symlinks
 that Homemaker creates will point to the configuration files in this directory. You may have noticed that you can also
-provide a destination directory via the `-dest` command line argument; this is where the symlinks should be created (and
-it defaults to your home directory).
+provide a destination directory via the `-dest` command line argument; this is where the symlinks should be created and
+it defaults to your home directory.
 
 Another useful parameter is `task`; it will be initialized to the value `default` unless you override it on the command
 line. In practice, this means that Homemaker will try to find a task called `default` and execute it. You can create as
@@ -218,12 +221,12 @@ Homemaker will process the dependency tasks before processing the task itself.
 In addition to creating links, Homemaker is capable of executing commands on a per-task basis. Commands should be
 defined in an array called `cmds`, split into an item per each command line argument. All of the commands are executed
 with `dest` as the working directory (as mentioned previously, this defaults to your home directory). If any command
-returns a nonzero exit code, Homemaker will display an error message and stop.
+returns a nonzero exit code, Homemaker will display an error message and prompt the user to determine if it should
+*abort*, *retry*, or *cancel*.
 
-The example task below will clone and install configuration files for [Vim](http://www.vim.org/) into the `.config`
-directory, and create links to it from the home directory. You may notice that this task references an environment
-variable (set by Homemaker itself) in the `links` block; you can read more about how to use environment variables in the
-following section.
+The example task below will clone and install configuration files for Vim into the `~/.config` directory, and create
+links to it from the home directory. You may notice that this task references an environment variable (set by Homemaker
+itself) in the `links` block; you can read more about how to use environment variables in the following section.
 
 ```
 [tasks.vim]
@@ -241,8 +244,9 @@ following section.
 
 Homemaker supports the expansion of environment variables for both command and link blocks. This is a good way of
 avoiding having to hard code absolute paths into your configuration file. To reference an environment variable simply
-use `${ENVVAR}`, where `ENVVAR` is the variable name. In addition to being able to use all of the environment variables
-defined on your system, Homemaker defines a couple of extra ones for ease of use:
+use `${ENVVAR}` or `$ENVVAR`, where `ENVVAR` is the variable name (notice the similarity to normal shell variable
+expansion). In addition to being able to reference all of the environment variables defined on your system, Homemaker
+defines a couple of extra ones for ease of use:
 
 *   `HM_CONFIG`
 
@@ -259,6 +263,10 @@ defined on your system, Homemaker defines a couple of extra ones for ease of use
 *   `HM_DEST`
 
     Destination directory for link creation.
+
+*   `HM_VARIANT`
+
+    Variant used for task and macro execution.
 
 Environment variables can also be set within tasks block by assigning them to the `envs` variable. The example below
 demonstrates the setting and clearing of environment variables:
@@ -278,13 +286,13 @@ value.
 
 ## Command Macros ##
 
-It can often be convenient to execute certain commands repeatedly within task blocks to install packages, clone git
+It is often convenient to execute certain commands repeatedly within task blocks to install packages, clone git
 repositories, etc. Homemaker provides macro blocks for this purpose; you can specify a command *prefix* and *suffix*
 that is used to wrap the parameters you provide. For example, you can declare a macro for `apt-get install` and with the
 declaration shown below (much like tasks, macro declarations are global).
 
 ```
-[macros.apt-install]
+[macros.install]
     prefix = ["sudo", "apt-get", "install", "-y"]
 ```
 
@@ -293,17 +301,27 @@ of the first item of a command). For example, the task below installs several py
 
 ```
 [tasks.python]
-    cmds = [[
-        "@apt-install",
-        "python-dev",
-        "python-pip",
-        "python3-pip",
-    ]]
+    cmds = [
+        ["@install", "python-dev", "python-pip", "python3-pip"]
+    ]
 ```
 
-This feature makes it possible to reduce the clutter that comes from the repeated commands which must be executed to
-bootstrap a new system. When executed with the `verbose` option, Homemaker will echo the expanded macro commands before
-executing them.
+Macros can have dependencies just like tasks. The `git clone` macro below makes sure that git is installed before
+attempting to clone a repository with it.
+
+```
+[macros.clone]
+    deps = ["git"]
+    prefix = ["git", "clone"]
+
+[tasks.git]
+    cmds = [
+        ["@install", "git"]
+    ]
+```
+
+Macros help reduce the clutter that comes from the repeated commands which must be executed to bootstrap a new system.
+When executed with the `verbose` option, Homemaker will echo the expanded macro commands before executing them.
 
 ## Task and Macro Variants ##
 
@@ -313,18 +331,18 @@ operating systems and distributions use different package managers and package n
 and macro *variants*.
 
 For example, if you want to write a generic macro for installing packages that works on both Ubuntu and Arch Linux, you
-can define the following variants:
+can define the following variants (Ubuntu uses the *apt* package manager and Arch Linux uses *apt*).
 
 ```
 [macros.install__ubuntu]
-    prefix = [["sudo", "apt-get", "install"]]
+    prefix = ["sudo", "apt-get", "install"]
 
 [macros.install__arch]
-    prefix = [["sudo", "pacman", "-S"]]
+    prefix = ["sudo", "pacman", "-S"]
 ```
 
-The double underscore characters signify that the following identifier is a *variant decorator*. For the most part, you
-only have to think about variants when you are defining your tasks and macros, not when using them. For example, to see
+The double underscore characters signify that the following identifier is a *variant decorator*. In most cases, you only
+have to think about variants when you are writing task and macro definitions, not when using them. For example, to see
 how to use the `install` macro that we just created, examine the configuration below:
 
 ```
@@ -332,15 +350,15 @@ how to use the `install` macro that we just created, examine the configuration b
     cmds = [["@install", "tmux"]]
 ```
 
-In order for this example to work properly, you must specify a variant on the command line as shown below. Notice that
-failing to specify any variant will cause Homemaker try to look for a non-existing, undecorated `install` macro, leading
-to failure.
+Notice that the package manager is conveniently abstracted by the `install` macro. Be aware that for this example to
+work properly, you must specify a variant on the command line as shown below. Failing to specify a variant will cause
+Homemaker try to look for an undecorated `install` macro (which doesn't exist), leading to failure.
 
 ```
 $ homemaker --variant=ubuntu example.toml /mnt/data/config
 ```
 
-Tasks can be be decorated just like commands:
+Tasks can be be decorated much like commands:
 
 ```
 [tasks.vim__server]
@@ -350,17 +368,16 @@ Tasks can be be decorated just like commands:
     cmds = [["@install", "gvim"]]
 ```
 
-In the above example, we avoid installing `gvim` on the server variant, where the X windowing system is not installed.
-Notice that Homemaker will only execute the best match out of the available task or macro options. If the provided
-variant is not a match to any available tasks or macros, the base undecorated version will be used instead if it is
-available.
+In the above example, we avoid installing `gvim` on the server variant, where the X windowing system is not installed or
+needed. Homemaker only executes the best task or macro candidate; if the provided variant does not match any tasks or
+macros, the base undecorated version will be used instead if it is available.
 
-The command below will execute `vim__server`:
+The command below will execute the `vim__server` task:
 ```
 $ homemaker --variant=server example.toml /mnt/data/config
 ```
 
-Both of the commands below will execute `vim`:
+Both of the commands below will execute the `vim` task:
 ```
 $ homemaker --variant=foobar example.toml /mnt/data/config
 $ homemaker example.toml /mnt/data/config
@@ -411,11 +428,11 @@ provides a more detailed description of what the parameters do.
     `[".ssh/id_rsa.pub", ".ssh_flatline/id_rsa.pub", "0700"]`. Notice that you can specify permissions in octal notation
     by adding a leading zero value (the `0x` prefix signifies hexadecimal).
 
-*   **nocmd**
+*   **nocmds**
 
     Do not execute commands for the `cmds` blocks inside of tasks.
 
-*   **nolink**
+*   **nolinks**
 
     Do not create links for the `links` blocks inside of tasks.
 
@@ -423,6 +440,12 @@ provides a more detailed description of what the parameters do.
 
     This parameter is used to specify which task Homemaker will process when executed. It defaults to the `default`
     task, which should be used when creating a configuration file that does not have system-specific tasks specified.
+
+*   **unlink**
+
+    Sometimes it's useful to "uninstall" links previously created by Homemaker. When running with the `unlink` flag, the
+    tool will delete the links created by the tasks provided. This flag automatically sets the `nocmds` flag as well,
+    because it makes no sense to execute commands when performing an uninstall operation.
 
 *   **variant**
 
@@ -440,4 +463,4 @@ provides a more detailed description of what the parameters do.
 Below you can find some actual Homemaker configuration files for inspiration. If you would like your configuration
 featured here please send me a pull request and I'll merge it in.
 
-*   [FooSoft](http://foosoft.net/projects/homemaker/dl/config.toml)
+*   [FooSoft](https://github.com/FooSoft/dotfiles)
