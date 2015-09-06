@@ -47,7 +47,7 @@ func (t *task) process(conf *config) error {
 		}
 	}
 
-	if conf.flags&flagNoCmd == 0 {
+	if conf.flags&flagNoCmds == 0 {
 		for _, currCmd := range t.Cmds {
 			if err := processCmd(currCmd, conf); err != nil {
 				return err
@@ -55,7 +55,7 @@ func (t *task) process(conf *config) error {
 		}
 	}
 
-	if conf.flags&flagNoLink == 0 {
+	if conf.flags&flagNoLinks == 0 {
 		for _, currLink := range t.Links {
 			if err := processLink(currLink, conf); err != nil {
 				return err

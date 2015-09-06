@@ -35,9 +35,10 @@ const (
 	flagClobber = 1 << iota
 	flagForce
 	flagVerbose
-	flagNoCmd
-	flagNoLink
+	flagNoCmds
+	flagNoLinks
 	flagNoMacro
+	flagUnlink = flagNoCmds | (1 << iota)
 )
 
 func usage() {
@@ -58,9 +59,10 @@ func main() {
 	force := flag.Bool("force", true, "create parent directories to target")
 	clobber := flag.Bool("clobber", false, "delete files and directories at target")
 	verbose := flag.Bool("verbose", false, "verbose output")
-	nocmd := flag.Bool("nocmd", false, "don't execute commands")
-	nolink := flag.Bool("nolink", false, "don't create links")
-	variant := flag.String("variant", "", "execution variant")
+	nocmds := flag.Bool("nocmds", false, "don't execute commands")
+	nolinks := flag.Bool("nolinks", false, "don't create links")
+	variant := flag.String("variant", "", "execution variant for tasks and macros")
+	unlink := flag.Bool("unlink", false, "remove existing links instead of creating them")
 
 	flag.Usage = usage
 	flag.Parse()
@@ -75,11 +77,14 @@ func main() {
 	if *verbose {
 		flags |= flagVerbose
 	}
-	if *nocmd {
-		flags |= flagNoCmd
+	if *nocmds {
+		flags |= flagNoCmds
 	}
-	if *nolink {
-		flags |= flagNoLink
+	if *nolinks {
+		flags |= flagNoLinks
+	}
+	if *unlink {
+		flags |= flagUnlink
 	}
 
 	if flag.NArg() == 2 {

@@ -115,23 +115,32 @@ func processLink(params []string, conf *config) error {
 		dstPathAbs = path.Join(conf.dstDir, dstPath)
 	}
 
-	if _, err := os.Stat(srcPathAbs); os.IsNotExist(err) {
-		return fmt.Errorf("source path %s does not exist in filesystem", srcPathAbs)
-	}
+	if conf.flags&flagUnlink == 0 {
+		if _, err := os.Stat(srcPathAbs); os.IsNotExist(err) {
+			return fmt.Errorf("source path %s does not exist in filesystem", srcPathAbs)
+		}
 
-	if err := try(func() error { return createPath(dstPathAbs, conf.flags, mode) }); err != nil {
-		return err
-	}
+		if err := try(func() error { return createPath(dstPathAbs, conf.flags, mode) }); err != nil {
+			return err
+		}
 
-	if err := try(func() error { return cleanPath(dstPathAbs, conf.flags) }); err != nil {
-		return err
-	}
+		if err := try(func() error { return cleanPath(dstPathAbs, conf.flags) }); err != nil {
+			return err
+		}
 
-	if conf.flags&flagVerbose != 0 {
-		log.Printf("linking %s to %s", srcPathAbs, dstPathAbs)
-	}
+		if conf.flags&flagVerbose != 0 {
+			log.Printf("linking %s to %s", srcPathAbs, dstPathAbs)
+		}
 
-	return try(func() error {
-		return os.Symlink(srcPathAbs, dstPathAbs)
-	})
+		return try(func() error {
+			return os.Symlink(srcPathAbs, dstPathAbs)
+		})
+	} else {
+		stat, err := os.Lstat(dstPathAbs)
+		if os.IsNotExist(err) || stat.Mode()&os.ModeSymlink == 0 {
+			return nil
+		}
+
+		return try(func() error { return cleanPath(dstPathAbs, conf.flags) })
+	}
 }
