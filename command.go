@@ -31,29 +31,51 @@ import (
 )
 
 type macro struct {
+	Deps   []string
 	Prefix []string
 	Suffix []string
 }
 
-func processCmdMacro(macroName string, args []string, conf *config) error {
-	for _, mn := range makeVariantNames(macroName, conf.variant) {
-		m, ok := conf.Macros[mn]
-		if !ok {
-			continue
+func findCmdMacro(macroName string, conf *config) (*macro, string) {
+	if strings.HasPrefix(macroName, "@") {
+		mn := strings.TrimPrefix(macroName, "@")
+		for _, mn := range makeVariantNames(mn, conf.variant) {
+			if m, ok := conf.Macros[mn]; ok {
+				return &m, mn
+			}
 		}
-
-		margs := appendExpEnv(nil, m.Prefix)
-		margs = appendExpEnv(margs, args)
-		margs = appendExpEnv(margs, m.Suffix)
-
-		if conf.flags&flagVerbose != 0 {
-			log.Printf("expanding macro: %s", mn)
-		}
-
-		return processCmd(margs, conf)
 	}
 
-	return fmt.Errorf("macro or variant not found: %s", macroName)
+	return nil, ""
+}
+
+func findCmdDeps(params []string, conf *config) []string {
+	if len(params) == 0 {
+		return nil
+	}
+
+	if m, _ := findCmdMacro(params[0], conf); m != nil {
+		return m.Deps
+	}
+
+	return nil
+}
+
+func processCmdMacro(macroName string, args []string, conf *config) error {
+	m, mn := findCmdMacro(macroName, conf)
+	if m == nil {
+		return fmt.Errorf("macro or variant not found: %s", macroName)
+	}
+
+	margs := appendExpEnv(nil, m.Prefix)
+	margs = appendExpEnv(margs, args)
+	margs = appendExpEnv(margs, m.Suffix)
+
+	if conf.flags&flagVerbose != 0 {
+		log.Printf("expanding macro: %s", mn)
+	}
+
+	return processCmd(margs, conf)
 }
 
 func processCmd(params []string, conf *config) error {
@@ -63,22 +85,13 @@ func processCmd(params []string, conf *config) error {
 	}
 
 	cmdName := args[0]
-	if strings.HasPrefix(cmdName, "@") {
-		var (
-			macroName = strings.TrimPrefix(cmdName, "@")
-			macroArgs []string
-		)
-
-		if len(args) > 1 {
-			macroArgs = args[1:]
-		}
-
-		return processCmdMacro(macroName, macroArgs, conf)
-	}
-
 	var cmdArgs []string
 	if len(args) > 1 {
 		cmdArgs = args[1:]
+	}
+
+	if strings.HasPrefix(cmdName, "@") {
+		return processCmdMacro(cmdName, cmdArgs, conf)
 	}
 
 	if conf.flags&flagVerbose != 0 {

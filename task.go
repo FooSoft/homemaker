@@ -34,8 +34,20 @@ type task struct {
 	Envs  [][]string
 }
 
+func (t *task) deps(conf *config) []string {
+	deps := t.Deps
+
+	if conf.flags&flagNoCmds == 0 {
+		for _, currCmd := range t.Cmds {
+			deps = append(deps, findCmdDeps(currCmd, conf)...)
+		}
+	}
+
+	return deps
+}
+
 func (t *task) process(conf *config) error {
-	for _, currTask := range t.Deps {
+	for _, currTask := range t.deps(conf) {
 		if err := processTask(currTask, conf); err != nil {
 			return err
 		}
