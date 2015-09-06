@@ -8,7 +8,7 @@ configuration file structure inspired by [make](https://en.wikipedia.org/wiki/Ma
 [symlinks](https://en.wikipedia.org/wiki/Symbolic_link) and execute system commands to aid in configuring a new system
 for use.
 
-![](img/demo.gif)
+![](http://foosoft.net/projects/homemaker/img/demo.gif)
 
 ## Motivation ##
 
