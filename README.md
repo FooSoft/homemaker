@@ -8,7 +8,7 @@ configuration file structure inspired by [make](https://en.wikipedia.org/wiki/Ma
 [symlinks](https://en.wikipedia.org/wiki/Symbolic_link) and execute system commands to aid in configuring a new system
 for use.
 
-![](http://foosoft.net/projects/homemaker/img/demo.gif)
+![](//foosoft.net/projects/homemaker/img/demo.gif)
 
 ## Motivation ##
 
@@ -62,8 +62,6 @@ $ go get github.com/FooSoft/homemaker
 
 Otherwise, you can use the pre-built binaries for the platforms below:
 
- * [homemaker_darwin_386.zip](http://dl.foosoft.net/homemaker/homemaker_darwin_386.zip)
- * [homemaker_darwin_amd64.zip](http://dl.foosoft.net/homemaker/homemaker_darwin_amd64.zip)
  * [homemaker_linux_386.tar.gz](http://dl.foosoft.net/homemaker/homemaker_linux_386.tar.gz)
  * [homemaker_linux_amd64.tar.gz](http://dl.foosoft.net/homemaker/homemaker_linux_amd64.tar.gz)
  * [homemaker_windows_386.zip](http://dl.foosoft.net/homemaker/homemaker_windows_386.zip)
