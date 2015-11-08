@@ -214,7 +214,7 @@ func decryptTask(taskName string, conf *config) error {
 		}
 
 		if conf.verbose {
-			log.Printf("encrypting task: %s", tn)
+			log.Printf("decrypting task: %s", tn)
 		}
 
 		key, err := t.hashPassword(tn, conf)
