@@ -23,7 +23,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -82,22 +81,12 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) {
-				if len(c.Args()) != 2 {
-					log.Fatal("Invalid number of arguments")
-					cli.ShowAppHelp(c)
-					os.Exit(1)
-				}
+				checkNumberOfArgs(2, c)
 
-				confFile := makeAbsPath(c.Args()[0])
-
-				conf, err := newConfig(confFile)
-				if err != nil {
-					log.Fatal(err)
-				}
+				conf := makeConf(c)
 
 				conf.srcDir = makeAbsPath(c.Args()[1])
 				conf.dstDir = makeAbsPath(c.GlobalString("dest"))
-				fmt.Println(conf.dstDir)
 				conf.task = c.GlobalString("task")
 				conf.variant = c.GlobalString("variant")
 				conf.force = c.Bool("force")
@@ -106,14 +95,14 @@ func main() {
 				conf.nocmds = c.Bool("nocmds")
 				conf.nolinks = c.Bool("nolinks")
 
-				os.Setenv("HM_CONFIG", confFile)
+				os.Setenv("HM_CONFIG", conf.file)
 				os.Setenv("HM_TASK", c.GlobalString("task"))
 				os.Setenv("HM_SRC", conf.srcDir)
 				os.Setenv("HM_DEST", conf.dstDir)
 				os.Setenv("HM_VARIANT", conf.variant)
 
 				if err := processTask(c.GlobalString("task"), conf); err != nil {
-					log.Fatal(err)
+					log.Println(err)
 					cli.ShowAppHelp(c)
 					os.Exit(1)
 				}
@@ -135,24 +124,15 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) {
-				if len(c.Args()) != 1 {
-					log.Fatal("Invalid number of arguments")
-					cli.ShowAppHelp(c)
-					os.Exit(1)
-				}
+				checkNumberOfArgs(1, c)
 
-				confFile := makeAbsPath(c.Args()[0])
-
-				conf, err := newConfig(confFile)
-				if err != nil {
-					log.Fatal(err)
-				}
+				conf := makeConf(c)
 
 				conf.password = c.String("password")
 				conf.remove = c.Bool("remove")
 
 				if err := encryptTask(c.GlobalString("task"), conf); err != nil {
-					log.Fatal(err)
+					log.Println(err)
 					cli.ShowAppHelp(c)
 					os.Exit(1)
 				}
@@ -170,23 +150,14 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) {
-				if len(c.Args()) != 1 {
-					log.Fatal("Invalid number of arguments")
-					cli.ShowAppHelp(c)
-					os.Exit(1)
-				}
+				checkNumberOfArgs(1, c)
 
-				confFile := makeAbsPath(c.Args()[0])
-
-				conf, err := newConfig(confFile)
-				if err != nil {
-					log.Fatal(err)
-				}
+				conf := makeConf(c)
 
 				conf.password = c.String("password")
 
 				if err := decryptTask(c.GlobalString("task"), conf); err != nil {
-					log.Fatal(err)
+					log.Println(err)
 					cli.ShowAppHelp(c)
 					os.Exit(1)
 				}
@@ -197,18 +168,9 @@ func main() {
 			Aliases: []string{"u"},
 			Usage:   "remove existing links instead of creating them",
 			Action: func(c *cli.Context) {
-				if len(c.Args()) != 1 {
-					log.Fatal("Invalid number of arguments")
-					cli.ShowAppHelp(c)
-					os.Exit(1)
-				}
+				checkNumberOfArgs(1, c)
 
-				confFile := makeAbsPath(c.Args()[0])
-
-				conf, err := newConfig(confFile)
-				if err != nil {
-					log.Fatal(err)
-				}
+				conf := makeConf(c)
 
 				conf.dstDir = makeAbsPath(c.GlobalString("dest"))
 				conf.task = c.GlobalString("task")
@@ -216,7 +178,7 @@ func main() {
 				conf.verbose = c.GlobalBool("verbose")
 
 				if err := unlinkTask(c.GlobalString("task"), conf); err != nil {
-					log.Fatal(err)
+					log.Println(err)
 					cli.ShowAppHelp(c)
 					os.Exit(1)
 				}
@@ -225,4 +187,25 @@ func main() {
 	}
 
 	app.Run(os.Args)
+}
+
+func checkNumberOfArgs(num int, c *cli.Context) {
+	if len(c.Args()) != num {
+		log.Println("Invalid number of arguments")
+		cli.ShowAppHelp(c)
+		os.Exit(1)
+	}
+}
+
+func makeConf(c *cli.Context) *config {
+	confFile := makeAbsPath(c.Args()[0])
+
+	conf, err := newConfig(confFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	conf.file = confFile
+
+	return conf
 }

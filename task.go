@@ -25,6 +25,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 type task struct {
@@ -55,7 +58,7 @@ func (t *task) process(conf *config, key string) error {
 	}
 
 	for _, currSecret := range t.Secrets {
-		if err := processEnc(currSecret, conf, key); err != nil {
+		if err := decryptSecret(currSecret, conf, key); err != nil {
 			return err
 		}
 	}
@@ -90,14 +93,14 @@ func (t *task) hashPassword(task string, conf *config) (string, error) {
 
 	if len(t.Secrets) != 0 {
 		if conf.password != "" {
-			key = keyFromPasssword([]byte(conf.password))
+			key = keyFromPassword([]byte(conf.password))
 		} else {
 			fmt.Printf("Enter your password for %s: \n", task)
 			k, err := getMaskedInput()
 			if err != nil {
 				return "", err
 			}
-			key = keyFromPasssword(k)
+			key = keyFromPassword(k)
 		}
 	}
 
@@ -145,6 +148,12 @@ func (t *task) encrypt(conf *config, key string) error {
 	for _, currSecret := range t.Secrets {
 		if err := encryptSecret(currSecret, conf, key); err != nil {
 			return err
+		}
+
+		sourceFile := filepath.Join(conf.srcDir, currSecret)
+
+		if conf.remove || prompt(strings.Join([]string{"Remove", sourceFile, "?"}, " ")) {
+			os.Remove(sourceFile)
 		}
 	}
 

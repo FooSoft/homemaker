@@ -36,6 +36,7 @@ type config struct {
 	Tasks  map[string]task
 	Macros map[string]macro
 
+	file     string
 	handled  map[string]bool
 	srcDir   string
 	dstDir   string

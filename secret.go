@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/andrewrynhard/go-mask"
 )
@@ -99,7 +98,7 @@ func getMaskedInput() ([]byte, error) {
 	return key, nil
 }
 
-func keyFromPasssword(password []byte) string {
+func keyFromPassword(password []byte) string {
 	hasher := md5.New()
 
 	hasher.Write([]byte(password))
@@ -107,7 +106,7 @@ func keyFromPasssword(password []byte) string {
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-func encryptFile(file string, key string, conf *config) error {
+func encryptFile(file string, key string) error {
 	content, err := readFromFile(file)
 	if err != nil {
 		return err
@@ -115,10 +114,6 @@ func encryptFile(file string, key string, conf *config) error {
 
 	encrypted := encrypt(string(content), string(key))
 	writeToFile(encrypted, file+".enc")
-
-	if conf.remove || prompt(strings.Join([]string{"Remove", file, "?"}, " ")) {
-		os.Remove(file)
-	}
 
 	return nil
 }
@@ -143,25 +138,12 @@ func encryptSecret(param string, conf *config, key string) error {
 		return err
 	}
 
-	encryptFile(sourceFile, key, conf)
+	encryptFile(sourceFile, key)
 
 	return nil
 }
 
 func decryptSecret(param string, conf *config, key string) error {
-	sourceFile := filepath.Join(conf.srcDir, param) + ".enc"
-
-	exists, err := isFile(sourceFile)
-	if !exists {
-		return err
-	}
-
-	decryptFile(sourceFile, key)
-
-	return nil
-}
-
-func processEnc(param string, conf *config, key string) error {
 	sourceFile := filepath.Join(conf.srcDir, param) + ".enc"
 
 	exists, err := isFile(sourceFile)
