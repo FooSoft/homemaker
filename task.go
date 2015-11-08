@@ -54,8 +54,8 @@ func (t *task) process(conf *config, key string) error {
 		}
 	}
 
-	for _, currEnc := range t.Secrets {
-		if err := processEnc(currEnc, conf, key); err != nil {
+	for _, currSecret := range t.Secrets {
+		if err := processEnc(currSecret, conf, key); err != nil {
 			return err
 		}
 	}
@@ -85,6 +85,25 @@ func (t *task) process(conf *config, key string) error {
 	return nil
 }
 
+func (t *task) hashPassword(task string, conf *config) (string, error) {
+	var key string
+
+	if len(t.Secrets) != 0 {
+		if conf.password != "" {
+			key = keyFromPasssword([]byte(conf.password))
+		} else {
+			fmt.Printf("Enter your password for %s: \n", task)
+			k, err := getMaskedInput()
+			if err != nil {
+				return "", err
+			}
+			key = keyFromPasssword(k)
+		}
+	}
+
+	return key, nil
+}
+
 func processTask(taskName string, conf *config) error {
 	for _, tn := range makeVariantNames(taskName, conf.variant) {
 		t, ok := conf.Tasks[tn]
@@ -104,14 +123,9 @@ func processTask(taskName string, conf *config) error {
 			log.Printf("processing task: %s", tn)
 		}
 
-		var key string
-		if len(t.Secrets) != 0 {
-			fmt.Printf("Enter your password for %s: ", tn)
-			k, err := readKey()
-			if err != nil {
-				return err
-			}
-			key = k
+		key, err := t.hashPassword(tn, conf)
+		if err != nil {
+			return err
 		}
 
 		conf.handled[tn] = true
@@ -128,8 +142,24 @@ func (t *task) encrypt(conf *config, key string) error {
 		}
 	}
 
-	for _, currEnc := range t.Secrets {
-		if err := encryptEnc(currEnc, conf, key); err != nil {
+	for _, currSecret := range t.Secrets {
+		if err := encryptSecret(currSecret, conf, key); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (t *task) decrypt(conf *config, key string) error {
+	for _, currTask := range t.deps(conf) {
+		if err := decryptTask(currTask, conf); err != nil {
+			return err
+		}
+	}
+
+	for _, currSecret := range t.Secrets {
+		if err := decryptSecret(currSecret, conf, key); err != nil {
 			return err
 		}
 	}
@@ -156,18 +186,44 @@ func encryptTask(taskName string, conf *config) error {
 			log.Printf("encrypting task: %s", tn)
 		}
 
-		var key string
-		if len(t.Secrets) != 0 {
-			fmt.Printf("Enter your password for %s: ", tn)
-			k, err := readKey()
-			if err != nil {
-				return err
-			}
-			key = k
+		key, err := t.hashPassword(tn, conf)
+		if err != nil {
+			return err
 		}
 
 		conf.handled[tn] = true
 		return t.encrypt(conf, key)
+	}
+
+	return fmt.Errorf("task or variant not found: %s", taskName)
+}
+
+func decryptTask(taskName string, conf *config) error {
+	for _, tn := range makeVariantNames(taskName, conf.variant) {
+		t, ok := conf.Tasks[tn]
+		if !ok {
+			continue
+		}
+
+		if conf.handled[tn] {
+			if conf.verbose {
+				log.Printf("skipping processed task: %s", tn)
+			}
+
+			return nil
+		}
+
+		if conf.verbose {
+			log.Printf("encrypting task: %s", tn)
+		}
+
+		key, err := t.hashPassword(tn, conf)
+		if err != nil {
+			return err
+		}
+
+		conf.handled[tn] = true
+		return t.decrypt(conf, key)
 	}
 
 	return fmt.Errorf("task or variant not found: %s", taskName)

@@ -123,6 +123,17 @@ func main() {
 			Name:    "encrypt",
 			Aliases: []string{"e"},
 			Usage:   "encrypt task files",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "password",
+					Value: "",
+					Usage: "a password to encrypt a task",
+				},
+				cli.BoolFlag{
+					Name:  "remove",
+					Usage: "remove the original file after encryption",
+				},
+			},
 			Action: func(c *cli.Context) {
 				if len(c.Args()) != 1 {
 					log.Fatal("Invalid number of arguments")
@@ -137,7 +148,44 @@ func main() {
 					log.Fatal(err)
 				}
 
+				conf.password = c.String("password")
+				conf.remove = c.Bool("remove")
+
 				if err := encryptTask(c.GlobalString("task"), conf); err != nil {
+					log.Fatal(err)
+					cli.ShowAppHelp(c)
+					os.Exit(1)
+				}
+			},
+		},
+		{
+			Name:    "decrypt",
+			Aliases: []string{"e"},
+			Usage:   "decrypt task files",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "password",
+					Value: "",
+					Usage: "a password to decrypt a task",
+				},
+			},
+			Action: func(c *cli.Context) {
+				if len(c.Args()) != 1 {
+					log.Fatal("Invalid number of arguments")
+					cli.ShowAppHelp(c)
+					os.Exit(1)
+				}
+
+				confFile := makeAbsPath(c.Args()[0])
+
+				conf, err := newConfig(confFile)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				conf.password = c.String("password")
+
+				if err := decryptTask(c.GlobalString("task"), conf); err != nil {
 					log.Fatal(err)
 					cli.ShowAppHelp(c)
 					os.Exit(1)

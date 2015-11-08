@@ -36,16 +36,18 @@ type config struct {
 	Tasks  map[string]task
 	Macros map[string]macro
 
-	handled map[string]bool
-	srcDir  string
-	dstDir  string
-	variant string
-	task    string
-	force   bool
-	clobber bool
-	verbose bool
-	nocmds  bool
-	nolinks bool
+	handled  map[string]bool
+	srcDir   string
+	dstDir   string
+	variant  string
+	task     string
+	force    bool
+	clobber  bool
+	verbose  bool
+	nocmds   bool
+	nolinks  bool
+	password string
+	remove   bool
 }
 
 func newConfig(filename string) (*config, error) {
