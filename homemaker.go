@@ -48,9 +48,8 @@ func usage() {
 }
 
 func main() {
-	homeDir := os.Getenv("HOME")
 	taskName := flag.String("task", "default", "name of task to execute")
-	dstDir := flag.String("dest", homeDir, "target directory for tasks")
+	dstDir := flag.String("dest", os.Getenv("HOME"), "target directory for tasks")
 	force := flag.Bool("force", true, "create parent directories to target")
 	clobber := flag.Bool("clobber", false, "delete files and directories at target")
 	verbose := flag.Bool("verbose", false, "verbose output")

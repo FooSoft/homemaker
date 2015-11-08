@@ -115,7 +115,7 @@ func processLink(params []string, conf *config) error {
 		dstPathAbs = path.Join(conf.dstDir, dstPath)
 	}
 
-	if conf.flags&flagUnlink == 0 {
+	if conf.flags&flagUnlink != flagUnlink {
 		if _, err := os.Stat(srcPathAbs); os.IsNotExist(err) {
 			return fmt.Errorf("source path %s does not exist in filesystem", srcPathAbs)
 		}
