@@ -40,7 +40,12 @@ type config struct {
 	srcDir  string
 	dstDir  string
 	variant string
-	flags   int
+	task    string
+	force   bool
+	clobber bool
+	verbose bool
+	nocmds  bool
+	nolinks bool
 }
 
 func newConfig(filename string) (*config, error) {

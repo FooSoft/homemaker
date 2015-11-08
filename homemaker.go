@@ -23,88 +23,158 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"os"
-	"path"
-)
 
-const (
-	flagClobber = 1 << iota
-	flagForce
-	flagVerbose
-	flagNoCmds
-	flagNoLinks
-	flagNoMacro
-	flagUnlink = flagNoCmds | (1 << iota)
+	"github.com/codegangsta/cli"
 )
-
-func usage() {
-	fmt.Fprintf(os.Stderr, "Usage: %s [options] conf src\n", path.Base(os.Args[0]))
-	fmt.Fprintf(os.Stderr, "http://foosoft.net/projects/homemaker/\n\n")
-	fmt.Fprintf(os.Stderr, "Parameters:\n")
-	flag.PrintDefaults()
-}
 
 func main() {
-	taskName := flag.String("task", "default", "name of task to execute")
-	dstDir := flag.String("dest", os.Getenv("HOME"), "target directory for tasks")
-	force := flag.Bool("force", true, "create parent directories to target")
-	clobber := flag.Bool("clobber", false, "delete files and directories at target")
-	verbose := flag.Bool("verbose", false, "verbose output")
-	nocmds := flag.Bool("nocmds", false, "don't execute commands")
-	nolinks := flag.Bool("nolinks", false, "don't create links")
-	variant := flag.String("variant", "", "execution variant for tasks and macros")
-	unlink := flag.Bool("unlink", false, "remove existing links instead of creating them")
+	homeDir := os.Getenv("HOME")
+	app := cli.NewApp()
 
-	flag.Usage = usage
-	flag.Parse()
+	app.Usage = "http://foosoft.net/projects/homemaker"
+	app.Version = "0.1.0"
 
-	flags := 0
-	if *clobber {
-		flags |= flagClobber
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:  "dest",
+			Value: homeDir,
+			Usage: "target directory for tasks",
+		},
+		cli.StringFlag{
+			Name:  "task",
+			Value: "default",
+			Usage: "name of task to execute",
+		},
+		cli.BoolFlag{
+			Name:  "verbose",
+			Usage: "verbose output",
+		},
+		cli.StringFlag{
+			Name:  "variant",
+			Value: "",
+			Usage: "execution variant for tasks and macros",
+		},
 	}
-	if *force {
-		flags |= flagForce
-	}
-	if *verbose {
-		flags |= flagVerbose
-	}
-	if *nocmds {
-		flags |= flagNoCmds
-	}
-	if *nolinks {
-		flags |= flagNoLinks
-	}
-	if *unlink {
-		flags |= flagUnlink
+	app.Commands = []cli.Command{
+		{
+			Name:    "bootstrap",
+			Aliases: []string{"b"},
+			Usage:   "bootstrap a machine",
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "force",
+					Usage: "create parent directories to target",
+				},
+				cli.BoolFlag{
+					Name:  "clobber",
+					Usage: "delete files and directories at target",
+				},
+				cli.BoolFlag{
+					Name:  "nocmds",
+					Usage: "don't execute commands",
+				},
+				cli.BoolFlag{
+					Name:  "nolinks",
+					Usage: "don't create links",
+				},
+			},
+			Action: func(c *cli.Context) {
+				if len(c.Args()) != 2 {
+					log.Fatal("Invalid number of arguments")
+					cli.ShowAppHelp(c)
+					os.Exit(1)
+				}
+
+				confFile := makeAbsPath(c.Args()[0])
+
+				conf, err := newConfig(confFile)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				conf.srcDir = makeAbsPath(c.Args()[1])
+				conf.dstDir = makeAbsPath(c.GlobalString("dest"))
+				fmt.Println(conf.dstDir)
+				conf.task = c.GlobalString("task")
+				conf.variant = c.GlobalString("variant")
+				conf.force = c.Bool("force")
+				conf.clobber = c.Bool("clobber")
+				conf.verbose = c.GlobalBool("verbose")
+				conf.nocmds = c.Bool("nocmds")
+				conf.nolinks = c.Bool("nolinks")
+
+				os.Setenv("HM_CONFIG", confFile)
+				os.Setenv("HM_TASK", c.GlobalString("task"))
+				os.Setenv("HM_SRC", conf.srcDir)
+				os.Setenv("HM_DEST", conf.dstDir)
+				os.Setenv("HM_VARIANT", conf.variant)
+
+				if err := processTask(c.GlobalString("task"), conf); err != nil {
+					log.Fatal(err)
+					cli.ShowAppHelp(c)
+					os.Exit(1)
+				}
+			},
+		},
+		{
+			Name:    "encrypt",
+			Aliases: []string{"e"},
+			Usage:   "encrypt task files",
+			Action: func(c *cli.Context) {
+				if len(c.Args()) != 1 {
+					log.Fatal("Invalid number of arguments")
+					cli.ShowAppHelp(c)
+					os.Exit(1)
+				}
+
+				confFile := makeAbsPath(c.Args()[0])
+
+				conf, err := newConfig(confFile)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				if err := encryptTask(c.GlobalString("task"), conf); err != nil {
+					log.Fatal(err)
+					cli.ShowAppHelp(c)
+					os.Exit(1)
+				}
+			},
+		},
+		{
+			Name:    "unlink",
+			Aliases: []string{"u"},
+			Usage:   "remove existing links instead of creating them",
+			Action: func(c *cli.Context) {
+				if len(c.Args()) != 1 {
+					log.Fatal("Invalid number of arguments")
+					cli.ShowAppHelp(c)
+					os.Exit(1)
+				}
+
+				confFile := makeAbsPath(c.Args()[0])
+
+				conf, err := newConfig(confFile)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				conf.dstDir = makeAbsPath(c.GlobalString("dest"))
+				conf.task = c.GlobalString("task")
+				conf.variant = c.GlobalString("variant")
+				conf.verbose = c.GlobalBool("verbose")
+
+				if err := unlinkTask(c.GlobalString("task"), conf); err != nil {
+					log.Fatal(err)
+					cli.ShowAppHelp(c)
+					os.Exit(1)
+				}
+			},
+		},
 	}
 
-	if flag.NArg() == 2 {
-		confFile := makeAbsPath(flag.Arg(0))
-
-		conf, err := newConfig(confFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		conf.srcDir = makeAbsPath(flag.Arg(1))
-		conf.dstDir = makeAbsPath(*dstDir)
-		conf.variant = *variant
-		conf.flags = flags
-
-		os.Setenv("HM_CONFIG", confFile)
-		os.Setenv("HM_TASK", *taskName)
-		os.Setenv("HM_SRC", conf.srcDir)
-		os.Setenv("HM_DEST", conf.dstDir)
-		os.Setenv("HM_VARIANT", conf.variant)
-
-		if err := processTask(*taskName, conf); err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		usage()
-		os.Exit(2)
-	}
+	app.Run(os.Args)
 }
