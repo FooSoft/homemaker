@@ -28,11 +28,11 @@ import (
 )
 
 type task struct {
-	Deps  []string
-	Links [][]string
-	Cmds  [][]string
-	Envs  [][]string
-	Encs  []string
+	Deps    []string
+	Links   [][]string
+	Cmds    [][]string
+	Envs    [][]string
+	Secrets []string
 }
 
 func (t *task) deps(conf *config) []string {
@@ -54,7 +54,7 @@ func (t *task) process(conf *config, key string) error {
 		}
 	}
 
-	for _, currEnc := range t.Encs {
+	for _, currEnc := range t.Secrets {
 		if err := processEnc(currEnc, conf, key); err != nil {
 			return err
 		}
@@ -105,7 +105,7 @@ func processTask(taskName string, conf *config) error {
 		}
 
 		var key string
-		if len(t.Encs) != 0 {
+		if len(t.Secrets) != 0 {
 			fmt.Printf("Enter your password for %s: ", tn)
 			k, err := readKey()
 			if err != nil {
@@ -128,7 +128,7 @@ func (t *task) encrypt(conf *config, key string) error {
 		}
 	}
 
-	for _, currEnc := range t.Encs {
+	for _, currEnc := range t.Secrets {
 		if err := encryptEnc(currEnc, conf, key); err != nil {
 			return err
 		}
@@ -157,7 +157,7 @@ func encryptTask(taskName string, conf *config) error {
 		}
 
 		var key string
-		if len(t.Encs) != 0 {
+		if len(t.Secrets) != 0 {
 			fmt.Printf("Enter your password for %s: ", tn)
 			k, err := readKey()
 			if err != nil {
