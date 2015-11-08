@@ -160,7 +160,7 @@ func main() {
 		},
 		{
 			Name:    "decrypt",
-			Aliases: []string{"e"},
+			Aliases: []string{"d"},
 			Usage:   "decrypt task files",
 			Flags: []cli.Flag{
 				cli.StringFlag{
