@@ -67,7 +67,7 @@ Otherwise, you can use the pre-built binaries for the platforms below:
  * [homemaker_windows_386.zip](http://dl.foosoft.net/homemaker/homemaker_windows_386.zip)
  * [homemaker_windows_amd64.zip](http://dl.foosoft.net/homemaker/homemaker_windows_amd64.zip)
 
-## Configuration Basics ##
+## Configuration ##
 
 Configuration files for Homemaker can be authored in your choice of [TOML](https://github.com/toml-lang/toml),
 [YAML](http://yaml.org/) or [JSON](http://json.org/) markup languages. Being the easiest to read out of the three, TOML
@@ -238,7 +238,7 @@ itself) in the `links` block; you can read more about how to use environment var
     ]
 ```
 
-## Environment Variables ##
+### Environment Variables ###
 
 Homemaker supports the expansion of environment variables for both command and link blocks. This is a good way of
 avoiding having to hard code absolute paths into your configuration file. To reference an environment variable simply
@@ -282,7 +282,7 @@ It should be pointed out that it is possible to reference other environment vari
 first part of this section. This makes it possible to expand variables like `PATH` without overwriting their existing
 value.
 
-## Command Macros ##
+### Command Macros ###
 
 It is often convenient to execute certain commands repeatedly within task blocks to install packages, clone git
 repositories, etc. Homemaker provides macro blocks for this purpose; you can specify a command *prefix* and *suffix*
@@ -321,7 +321,7 @@ attempting to clone a repository with it.
 Macros help reduce the clutter that comes from the repeated commands which must be executed to bootstrap a new system.
 When executed with the `verbose` option, Homemaker will echo the expanded macro commands before executing them.
 
-## Task and Macro Variants ##
+### Task and Macro Variants ###
 
 If you wish to use this tool in a truly cross-platform and cross-distribution manner without authoring multiple
 configuration files, you will have to provide information to Homemaker about the environment it is running in. Different
@@ -398,7 +398,7 @@ Although variants are somewhat of an advanced topic as far as Homemaker features
 provide some basic conditional functionality to your configuration file without significantly increasing complexity for
 the user.
 
-## Command Line Parameters ##
+## Usage ##
 
 Executing Homemaker with the `-help` command line argument will trigger online help to be displayed. The list below
 provides a more detailed description of what the parameters do.
@@ -455,3 +455,7 @@ provides a more detailed description of what the parameters do.
 
     When something isn't going the way you expect, you can use this parameter to make Homemaker to log everything it is
     doing to console.
+
+## License ##
+
+MIT
