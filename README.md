@@ -62,10 +62,13 @@ $ go get github.com/FooSoft/homemaker
 
 Otherwise, you can use the pre-built binaries for the platforms below:
 
- * [homemaker_linux_386.tar.gz](http://dl.foosoft.net/homemaker/homemaker_linux_386.tar.gz)
- * [homemaker_linux_amd64.tar.gz](http://dl.foosoft.net/homemaker/homemaker_linux_amd64.tar.gz)
- * [homemaker_windows_386.zip](http://dl.foosoft.net/homemaker/homemaker_windows_386.zip)
- * [homemaker_windows_amd64.zip](http://dl.foosoft.net/homemaker/homemaker_windows_amd64.zip)
+*   [homemaker_darwin_386.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_darwin_386.tar.gz)
+*   [homemaker_darwin_amd64.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_darwin_amd64.tar.gz)
+*   [homemaker_linux_386.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_linux_386.tar.gz)
+*   [homemaker_linux_amd64.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_linux_amd64.tar.gz)
+*   [homemaker_linux_arm.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_linux_arm.tar.gz)
+*   [homemaker_windows_386.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_windows_386.tar.gz)
+*   [homemaker_windows_amd64.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_windows_amd64.tar.gz)
 
 ## Configuration ##
 
