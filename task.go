@@ -25,19 +25,23 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 type task struct {
-	Deps  []string
-	Links [][]string
-	Cmds  [][]string
-	Envs  [][]string
+	Deps    []string
+	Links   [][]string
+	Cmds    [][]string
+	Envs    [][]string
+	Secrets []string
 }
 
 func (t *task) deps(conf *config) []string {
 	deps := t.Deps
 
-	if conf.flags&flagNoCmds == 0 {
+	if conf.nocmds {
 		for _, currCmd := range t.Cmds {
 			deps = append(deps, findCmdDeps(currCmd, conf)...)
 		}
@@ -46,9 +50,15 @@ func (t *task) deps(conf *config) []string {
 	return deps
 }
 
-func (t *task) process(conf *config) error {
+func (t *task) process(conf *config, key string) error {
 	for _, currTask := range t.deps(conf) {
 		if err := processTask(currTask, conf); err != nil {
+			return err
+		}
+	}
+
+	for _, currSecret := range t.Secrets {
+		if err := decryptSecret(currSecret, conf, key); err != nil {
 			return err
 		}
 	}
@@ -59,7 +69,7 @@ func (t *task) process(conf *config) error {
 		}
 	}
 
-	if conf.flags&flagNoCmds == 0 {
+	if !conf.nocmds {
 		for _, currCmd := range t.Cmds {
 			if err := processCmd(currCmd, conf); err != nil {
 				return err
@@ -67,7 +77,7 @@ func (t *task) process(conf *config) error {
 		}
 	}
 
-	if conf.flags&flagNoLinks == 0 {
+	if !conf.nolinks {
 		for _, currLink := range t.Links {
 			if err := processLink(currLink, conf); err != nil {
 				return err
@@ -78,6 +88,25 @@ func (t *task) process(conf *config) error {
 	return nil
 }
 
+func (t *task) hashPassword(task string, conf *config) (string, error) {
+	var key string
+
+	if len(t.Secrets) != 0 {
+		if conf.password != "" {
+			key = keyFromPassword([]byte(conf.password))
+		} else {
+			fmt.Printf("Enter your password for %s: \n", task)
+			k, err := getMaskedInput()
+			if err != nil {
+				return "", err
+			}
+			key = keyFromPassword(k)
+		}
+	}
+
+	return key, nil
+}
+
 func processTask(taskName string, conf *config) error {
 	for _, tn := range makeVariantNames(taskName, conf.variant) {
 		t, ok := conf.Tasks[tn]
@@ -86,19 +115,165 @@ func processTask(taskName string, conf *config) error {
 		}
 
 		if conf.handled[tn] {
-			if conf.flags&flagVerbose != 0 {
+			if conf.verbose {
 				log.Printf("skipping processed task: %s", tn)
 			}
 
 			return nil
 		}
 
-		if conf.flags&flagVerbose != 0 {
+		if conf.verbose {
 			log.Printf("processing task: %s", tn)
 		}
 
+		key, err := t.hashPassword(tn, conf)
+		if err != nil {
+			return err
+		}
+
 		conf.handled[tn] = true
-		return t.process(conf)
+		return t.process(conf, key)
+	}
+
+	return fmt.Errorf("task or variant not found: %s", taskName)
+}
+
+func (t *task) encrypt(conf *config, key string) error {
+	for _, currTask := range t.deps(conf) {
+		if err := encryptTask(currTask, conf); err != nil {
+			return err
+		}
+	}
+
+	for _, currSecret := range t.Secrets {
+		if err := encryptSecret(currSecret, conf, key); err != nil {
+			return err
+		}
+
+		sourceFile := filepath.Join(conf.srcDir, currSecret)
+
+		if conf.remove || prompt(strings.Join([]string{"Remove", sourceFile, "?"}, " ")) {
+			os.Remove(sourceFile)
+		}
+	}
+
+	return nil
+}
+
+func (t *task) decrypt(conf *config, key string) error {
+	for _, currTask := range t.deps(conf) {
+		if err := decryptTask(currTask, conf); err != nil {
+			return err
+		}
+	}
+
+	for _, currSecret := range t.Secrets {
+		if err := decryptSecret(currSecret, conf, key); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func encryptTask(taskName string, conf *config) error {
+	for _, tn := range makeVariantNames(taskName, conf.variant) {
+		t, ok := conf.Tasks[tn]
+		if !ok {
+			continue
+		}
+
+		if conf.handled[tn] {
+			if conf.verbose {
+				log.Printf("skipping processed task: %s", tn)
+			}
+
+			return nil
+		}
+
+		if conf.verbose {
+			log.Printf("encrypting task: %s", tn)
+		}
+
+		key, err := t.hashPassword(tn, conf)
+		if err != nil {
+			return err
+		}
+
+		conf.handled[tn] = true
+		return t.encrypt(conf, key)
+	}
+
+	return fmt.Errorf("task or variant not found: %s", taskName)
+}
+
+func decryptTask(taskName string, conf *config) error {
+	for _, tn := range makeVariantNames(taskName, conf.variant) {
+		t, ok := conf.Tasks[tn]
+		if !ok {
+			continue
+		}
+
+		if conf.handled[tn] {
+			if conf.verbose {
+				log.Printf("skipping processed task: %s", tn)
+			}
+
+			return nil
+		}
+
+		if conf.verbose {
+			log.Printf("decrypting task: %s", tn)
+		}
+
+		key, err := t.hashPassword(tn, conf)
+		if err != nil {
+			return err
+		}
+
+		conf.handled[tn] = true
+		return t.decrypt(conf, key)
+	}
+
+	return fmt.Errorf("task or variant not found: %s", taskName)
+}
+
+func (t *task) unlink(conf *config) error {
+	for _, currLink := range t.deps(conf) {
+		if err := unlinkTask(currLink, conf); err != nil {
+			return err
+		}
+	}
+
+	for _, currLink := range t.Links {
+		if err := removeLink(currLink, conf); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func unlinkTask(taskName string, conf *config) error {
+	for _, tn := range makeVariantNames(taskName, conf.variant) {
+		t, ok := conf.Tasks[tn]
+		if !ok {
+			continue
+		}
+
+		if conf.handled[tn] {
+			if conf.verbose {
+				log.Printf("skipping processed task: %s", tn)
+			}
+
+			return nil
+		}
+
+		if conf.verbose {
+			log.Printf("unlinking task: %s", tn)
+		}
+
+		return t.unlink(conf)
 	}
 
 	return fmt.Errorf("task or variant not found: %s", taskName)

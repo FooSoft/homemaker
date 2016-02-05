@@ -71,7 +71,7 @@ func processCmdMacro(macroName string, args []string, conf *config) error {
 	margs = appendExpEnv(margs, args)
 	margs = appendExpEnv(margs, m.Suffix)
 
-	if conf.flags&flagVerbose != 0 {
+	if conf.verbose {
 		log.Printf("expanding macro: %s", mn)
 	}
 
@@ -94,7 +94,7 @@ func processCmd(params []string, conf *config) error {
 		return processCmdMacro(cmdName, cmdArgs, conf)
 	}
 
-	if conf.flags&flagVerbose != 0 {
+	if conf.verbose {
 		log.Printf("executing command: %s %s", cmdName, strings.Join(cmdArgs, " "))
 	}
 
