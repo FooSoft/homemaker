@@ -45,7 +45,7 @@ Specifically, I required a solution that had the following characteristics:
     otherwise known as shell scripts. Scripting languages can work well but are closely tied to the environment in which
     they are executed.
 
-It soon became apparent to me that utility which met all of my requirements for simply did not exist. After making due
+It soon became apparent to me that utility which met all of my requirements for simply did not exist. After making do
 with a hastily hacked-together Python script for a couple of months, I decided that this problem deserved a clean,
 formal solution. I settled on building this new utility in Go because in addition to the language syntax being clear and
 easy to understand, executables built by the Go compiler are statically linked, making them highly portable. Just drop
