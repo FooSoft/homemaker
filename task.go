@@ -28,12 +28,12 @@ import (
 )
 
 type task struct {
-	Deps   []string
-	Links  [][]string
-	Cmds   [][]string
-	Envs   [][]string
-	WTrue  [][]string
-	WFalse [][]string
+	Deps    []string
+	Links   [][]string
+	Cmds    [][]string
+	Envs    [][]string
+	Accepts [][]string
+	Rejects [][]string
 }
 
 func (t *task) deps(conf *config) []string {
@@ -64,13 +64,13 @@ func (t *task) process(conf *config) error {
 	if conf.flags&flagNoCmds == 0 {
 	CmdLoop:
 		for {
-			for _, currCnd := range t.WTrue {
+			for _, currCnd := range t.Accepts {
 				if err := processCmd(currCnd, false, conf); err != nil {
 					break CmdLoop
 				}
 			}
 
-			for _, currCnd := range t.WFalse {
+			for _, currCnd := range t.Rejects {
 				if err := processCmd(currCnd, false, conf); err == nil {
 					break CmdLoop
 				}
