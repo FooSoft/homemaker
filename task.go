@@ -62,27 +62,10 @@ func (t *task) process(conf *config) error {
 	}
 
 	if conf.flags&flagNoCmds == 0 {
-	CmdLoop:
-		for {
-			for _, currCnd := range t.Accepts {
-				if err := processCmd(currCnd, false, conf); err != nil {
-					break CmdLoop
-				}
+		for _, currCmd := range t.Cmds {
+			if err := processCmd(currCmd, true, conf); err != nil {
+				return err
 			}
-
-			for _, currCnd := range t.Rejects {
-				if err := processCmd(currCnd, false, conf); err == nil {
-					break CmdLoop
-				}
-			}
-
-			for _, currCmd := range t.Cmds {
-				if err := processCmd(currCmd, true, conf); err != nil {
-					return err
-				}
-			}
-
-			break
 		}
 	}
 
@@ -97,6 +80,22 @@ func (t *task) process(conf *config) error {
 	return nil
 }
 
+func (t *task) skippable(conf *config) bool {
+	for _, currCnd := range t.Accepts {
+		if err := processCmd(currCnd, false, conf); err != nil {
+			return true
+		}
+	}
+
+	for _, currCnd := range t.Rejects {
+		if err := processCmd(currCnd, false, conf); err == nil {
+			return true
+		}
+	}
+
+	return false
+}
+
 func processTask(taskName string, conf *config) error {
 	for _, tn := range makeVariantNames(taskName, conf.variant) {
 		t, ok := conf.Tasks[tn]
@@ -104,9 +103,9 @@ func processTask(taskName string, conf *config) error {
 			continue
 		}
 
-		if conf.handled[tn] {
+		if conf.handled[tn] || t.skippable(conf) {
 			if conf.flags&flagVerbose != 0 {
-				log.Printf("skipping processed task: %s", tn)
+				log.Printf("skipping task: %s", tn)
 			}
 
 			return nil
