@@ -61,7 +61,7 @@ func findCmdDeps(params []string, conf *config) []string {
 	return nil
 }
 
-func processCmdMacro(macroName string, args []string, conf *config) error {
+func processCmdMacro(macroName string, args []string, interact bool, conf *config) error {
 	m, mn := findCmdMacro(macroName, conf)
 	if m == nil {
 		return fmt.Errorf("macro or variant not found: %s", macroName)
@@ -75,10 +75,10 @@ func processCmdMacro(macroName string, args []string, conf *config) error {
 		log.Printf("expanding macro: %s", mn)
 	}
 
-	return processCmd(margs, conf)
+	return processCmd(margs, interact, conf)
 }
 
-func processCmd(params []string, conf *config) error {
+func processCmd(params []string, interact bool, conf *config) error {
 	args := appendExpEnv(nil, params)
 	if len(args) == 0 {
 		return fmt.Errorf("invalid command statement")
@@ -91,19 +91,28 @@ func processCmd(params []string, conf *config) error {
 	}
 
 	if strings.HasPrefix(cmdName, "@") {
-		return processCmdMacro(cmdName, cmdArgs, conf)
+		return processCmdMacro(cmdName, cmdArgs, interact, conf)
 	}
 
 	if conf.flags&flagVerbose != 0 {
 		log.Printf("executing command: %s %s", cmdName, strings.Join(cmdArgs, " "))
 	}
 
-	return try(func() error {
+	exec := func() error {
 		cmd := exec.Command(cmdName, cmdArgs...)
 		cmd.Dir = conf.dstDir
-		cmd.Stderr = os.Stderr
-		cmd.Stdout = os.Stdout
-		cmd.Stdin = os.Stdin
+		if interact {
+			cmd.Stderr = os.Stderr
+			cmd.Stdout = os.Stdout
+			cmd.Stdin = os.Stdin
+		}
+
 		return cmd.Run()
-	})
+	}
+
+	if interact {
+		return try(exec)
+	}
+
+	return exec()
 }
