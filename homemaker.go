@@ -42,7 +42,7 @@ const (
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "Usage: %s [options] conf src\n", path.Base(os.Args[0]))
-	fmt.Fprintf(os.Stderr, "http://foosoft.net/projects/homemaker/\n\n")
+	fmt.Fprintf(os.Stderr, "https://foosoft.net/projects/homemaker/\n\n")
 	fmt.Fprintf(os.Stderr, "Parameters:\n")
 	flag.PrintDefaults()
 }
