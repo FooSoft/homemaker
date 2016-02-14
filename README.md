@@ -332,7 +332,7 @@ operating systems and distributions use different package managers and package n
 and macro *variants*.
 
 For example, if you want to write a generic macro for installing packages that works on both Ubuntu and Arch Linux, you
-can define the following variants (Ubuntu uses the *apt* package manager and Arch Linux uses *apt*).
+can define the following variants (Ubuntu uses the *apt* package manager and Arch Linux uses *pacman*).
 
 ```
 [macros.install__ubuntu]
