@@ -1,6 +1,6 @@
 # Homemaker #
 
-Homemaker is a lightweight tool for straightforward and efficient management of *nix configuration files found in the
+Homemaker is a lightweight tool for straightforward and efficient management of \*nix configuration files found in the
 user's home directory, commonly known as [dot-files](https://en.wikipedia.org/wiki/Dot-file). It can also be readily
 used for general purpose system bootstrapping, including installing packages, cloning repositories, etc. This tool is
 written in Golang, requires no installation, has no dependencies and makes use of simple configuration file structure
@@ -45,7 +45,7 @@ Specifically, I required a solution that had the following characteristics:
     otherwise known as shell scripts. Scripting languages can work well but are closely tied to the environment in which
     they are executed.
 
-It soon became apparent to me that utility which met all of my requirements for simply did not exist. After making due
+It soon became apparent to me that utility which met all of my requirements for simply did not exist. After making do
 with a hastily hacked-together Python script for a couple of months, I decided that this problem deserved a clean,
 formal solution. I settled on building this new utility in Go because in addition to the language syntax being clear and
 easy to understand, executables built by the Go compiler are statically linked, making them highly portable. Just drop
@@ -400,6 +400,35 @@ contains a *variant override* as shown in the somewhat contrived examples below:
 Although variants are somewhat of an advanced topic as far as Homemaker features are concerned, they can be used to
 provide some basic conditional functionality to your configuration file without significantly increasing complexity for
 the user.
+
+### Conditional Execution ###
+
+Homemaker provides a facility for determining whether or not a given task should execute at runtime; this is
+accomplished with the `accepts` and `rejects` task variables. Both follow the same syntax as the `cmds` variable and
+support macro and environment variable expansion.
+
+*   **accepts**
+
+    Execute commands non-interactively; any non-zero return code will cause the task to be skipped.
+
+*   **rejects**
+
+    Execute commands non-interactively; any return code of zero code will cause the task to be skipped.
+
+The intent of this feature is to allow tasks to "early out" when the work they carry out has already been completed. In
+the example below, we use the `which` command to see if [fish shell](https://fishshell.com/) is already installed before
+trying to install it. This is possible because `which` returns a non-zero value when it encounters strings which do not
+correspond to applications installed on the current system.
+
+```
+[tasks.fish]
+    rejects = [["which", "fish"]]
+    cmds = [["@install", "fish"], ["chsh", "-s", "/usr/bin/fish"]]
+    links = [[".config/fish/config.fish"]]
+```
+
+The `accepts` variable is the logical opposite of `rejects` and can be used to conditionally execute tasks only when all
+of the specified commands exit out with a return code of zero.
 
 ## Usage ##
 
