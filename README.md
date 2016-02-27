@@ -8,6 +8,11 @@ inspired by [make](https://en.wikipedia.org/wiki/Make_%28software%29) to generat
 [symlinks](https://en.wikipedia.org/wiki/Symbolic_link) and execute system commands to aid in configuring a new system
 for use.
 
+Naturally, I use Homemaker to manage my own dot-files, which you can view on the respective [project
+page](https://github.com/FooSoft/dotfiles). Once there, you may want to take a look at the
+[config.toml](https://github.com/FooSoft/dotfiles/blob/master/config.toml) file, which contains the actual configuration
+data.
+
 ![](img/demo.gif)
 
 ## Motivation ##
