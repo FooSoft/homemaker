@@ -13,7 +13,7 @@ page](https://github.com/FooSoft/dotfiles). Once there, you may want to take a l
 [config.toml](https://github.com/FooSoft/dotfiles/blob/master/config.toml) file, which contains the actual configuration
 data.
 
-![](img/demo.gif)
+![](https://foosoft.net/projects/homemaker/img/demo.gif)
 
 ## Motivation ##
 
@@ -67,13 +67,13 @@ $ go get github.com/FooSoft/homemaker
 
 Otherwise, you can use the pre-built binaries for the platforms below:
 
-*   [homemaker_darwin_386.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_darwin_386.tar.gz)
-*   [homemaker_darwin_amd64.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_darwin_amd64.tar.gz)
-*   [homemaker_linux_386.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_linux_386.tar.gz)
-*   [homemaker_linux_amd64.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_linux_amd64.tar.gz)
-*   [homemaker_linux_arm.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_linux_arm.tar.gz)
-*   [homemaker_windows_386.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_windows_386.tar.gz)
-*   [homemaker_windows_amd64.tar.gz](//foosoft.net/projects/homemaker/dl/homemaker_windows_amd64.tar.gz)
+*   [homemaker_darwin_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_darwin_386.tar.gz)
+*   [homemaker_darwin_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_darwin_amd64.tar.gz)
+*   [homemaker_linux_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_linux_386.tar.gz)
+*   [homemaker_linux_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_linux_amd64.tar.gz)
+*   [homemaker_linux_arm.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_linux_arm.tar.gz)
+*   [homemaker_windows_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_windows_386.tar.gz)
+*   [homemaker_windows_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_windows_amd64.tar.gz)
 
 ## Configuration ##
 
@@ -128,7 +128,7 @@ To get a better idea of what `/mnt/data/config` is, let's look at the in-program
 
 ```
 Usage: homemaker [options] conf src
-http://foosoft.net/projects/homemaker/
+https://foosoft.net/projects/homemaker/
 
 Parameters:
   -clobber
