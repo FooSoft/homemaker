@@ -3,7 +3,7 @@
 Homemaker is a lightweight tool for straightforward and efficient management of \*nix configuration files found in the
 user's home directory, commonly known as [dot-files](https://en.wikipedia.org/wiki/Dot-file). It can also be readily
 used for general purpose system bootstrapping, including installing packages, cloning repositories, etc. This tool is
-written in Golang, requires no installation, has no dependencies and makes use of simple configuration file structure
+written in Go, requires no installation, has no dependencies and makes use of simple configuration file structure
 inspired by [make](https://en.wikipedia.org/wiki/Make_%28software%29) to generate
 [symlinks](https://en.wikipedia.org/wiki/Symbolic_link) and execute system commands to aid in configuring a new system
 for use.
