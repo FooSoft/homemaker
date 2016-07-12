@@ -77,9 +77,9 @@ Otherwise, you can use the pre-built binaries for the platforms below:
 ## Configuration ##
 
 Configuration files for Homemaker can be authored in your choice of [TOML](https://github.com/toml-lang/toml),
-[YAML](http://yaml.org/) or [JSON](http://json.org/) markup languages. Being the easiest to read out of the three, TOML
-will be used for the example configuration files. Worry not if you are unfamiliar with this format; everything you need
-to know about it will be shown below.
+[JSON](http://json.org/), or [YAML](http://yaml.org/)  markup languages. Being the easiest to read out of the three,
+TOML will be used for the example configuration files. Worry not if you are unfamiliar with this format; everything you
+need to know about it will be shown below.
 
 Let's start by looking at a basic example configuration file, `example.toml`. Notice that Homemaker determines which
 markdown language processor to use based on the extension of your c:nfiguration file. Use `.toml/.tml` for TOML,
