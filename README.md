@@ -1,3 +1,4 @@
+# Homemaker #
 
 Homemaker is a lightweight tool for straightforward and efficient management of \*nix configuration files found in the
 user's home directory, commonly known as dot-files. It can also be readily used for general purpose system
