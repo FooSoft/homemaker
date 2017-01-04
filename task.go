@@ -28,12 +28,14 @@ import (
 )
 
 type task struct {
-	Deps    []string
-	Links   [][]string
-	Cmds    [][]string
-	Envs    [][]string
-	Accepts [][]string
-	Rejects [][]string
+	Deps     []string
+	Links    [][]string
+    Precmds  [][]string
+	Cmds     [][]string
+    Postcmds [][]string
+	Envs     [][]string
+	Accepts  [][]string
+	Rejects  [][]string
 }
 
 func (t *task) deps(conf *config) []string {
@@ -61,6 +63,14 @@ func (t *task) process(conf *config) error {
 		}
 	}
 
+    if conf.flags&flagNoCmds == 0 {
+		for _, currCmd := range t.Precmds {
+			if err := processCmd(currCmd, true, conf); err != nil {
+				return err
+			}
+		}
+	}
+
 	if conf.flags&flagNoCmds == 0 {
 		for _, currCmd := range t.Cmds {
 			if err := processCmd(currCmd, true, conf); err != nil {
@@ -77,7 +87,15 @@ func (t *task) process(conf *config) error {
 		}
 	}
 
-	return nil
+    if conf.flags&flagNoCmds == 0 {
+		for _, currCmd := range t.Postcmds {
+			if err := processCmd(currCmd, true, conf); err != nil {
+				return err
+			}
+		}
+	}
+	
+    return nil
 }
 
 func (t *task) skippable(conf *config) bool {
