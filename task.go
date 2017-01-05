@@ -69,6 +69,7 @@ func (t *task) process(conf *config) error {
 				return err
 			}
 		}
+
 		for _, currCmd := range t.Cmds {
 			if err := processCmd(currCmd, true, conf); err != nil {
 				return err
