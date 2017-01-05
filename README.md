@@ -223,11 +223,12 @@ shown below:
 
 Homemaker will process the dependency tasks before processing the task itself.
 
-In addition to creating links, Homemaker is capable of executing commands on a per-task basis. Commands should be
-defined in an array called `cmds`, split into an item per each command line argument. All of the commands are executed
-with `dest` as the working directory (as mentioned previously, this defaults to your home directory). If any command
-returns a nonzero exit code, Homemaker will display an error message and prompt the user to determine if it should
-*abort*, *retry*, or *cancel*.
+In addition to creating links, Homemaker is capable of executing commands on a per-task basis. Homemaker can commands both 
+before and after linking your configuration. Commands should be placed in either an array, under the field `precmds` or 
+`postcmds` (for commands to be run before and after linking respectively). These commands should be split into an array of 
+strings, with each entry corresponding to one command line argument. All of the commands are executed with `dest` as 
+the working directory (as mentioned previously, this defaults to your home directory). If any command returns a nonzero 
+exit code, Homemaker will display an error message and prompt the user to determine if it should *abort*, *retry*, or *cancel*.
 
 The example task below will clone and install configuration files for Vim into the `~/.config` directory, and create
 links to it from the home directory. You may notice that this task references an environment variable (set by Homemaker
