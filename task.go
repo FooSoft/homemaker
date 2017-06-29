@@ -28,14 +28,15 @@ import (
 )
 
 type task struct {
-	Deps     []string
-	Links    [][]string
-	CmdsPre  [][]string
-	Cmds     [][]string
-	CmdsPost [][]string
-	Envs     [][]string
-	Accepts  [][]string
-	Rejects  [][]string
+	Deps      []string
+	Links     [][]string
+	CmdsPre   [][]string
+	Cmds      [][]string
+	CmdsPost  [][]string
+	Envs      [][]string
+	Accepts   [][]string
+	Rejects   [][]string
+	Templates [][]string
 }
 
 func (t *task) deps(conf *config) []string {
@@ -80,6 +81,14 @@ func (t *task) process(conf *config) error {
 	if conf.flags&flagNoLinks == 0 {
 		for _, currLink := range t.Links {
 			if err := processLink(currLink, conf); err != nil {
+				return err
+			}
+		}
+	}
+
+	if conf.flags&flagNoTemplates == 0 {
+		for _, currTmpl := range t.Templates {
+			if err := processTemplate(currTmpl, conf); err != nil {
 				return err
 			}
 		}

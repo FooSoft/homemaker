@@ -36,6 +36,7 @@ const (
 	flagVerbose
 	flagNoCmds
 	flagNoLinks
+	flagNoTemplates
 	flagNoMacro
 	flagUnlink = flagNoCmds | (1 << iota)
 )
@@ -55,6 +56,7 @@ func main() {
 	verbose := flag.Bool("verbose", false, "verbose output")
 	nocmds := flag.Bool("nocmds", false, "don't execute commands")
 	nolinks := flag.Bool("nolinks", false, "don't create links")
+	notemplates := flag.Bool("notemplates", false, "don't process templates")
 	variant := flag.String("variant", "", "execution variant for tasks and macros")
 	unlink := flag.Bool("unlink", false, "remove existing links instead of creating them")
 
@@ -76,6 +78,9 @@ func main() {
 	}
 	if *nolinks {
 		flags |= flagNoLinks
+	}
+	if *notemplates {
+		flags |= flagNoTemplates
 	}
 	if *unlink {
 		flags |= flagUnlink
