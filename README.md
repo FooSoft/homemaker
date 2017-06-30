@@ -223,10 +223,34 @@ shown below:
 
 Homemaker will process the dependency tasks before processing the task itself.
 
-In addition to creating links, Homemaker is capable of executing commands on a per-task basis. Commands should be
-defined in an array called `cmds`, split into an item per each command line argument. All of the commands are executed
-with `dest` as the working directory (as mentioned previously, this defaults to your home directory). If any command
-returns a nonzero exit code, Homemaker will display an error message and prompt the user to determine if it should
+Sometimes, just linking a config file is not enough, because the content of the configuration file needs to be adapted
+to the target and we do not want to maintain several different versions of the same file. For such use cases, Homemaker
+supports templates. The configuration syntax for templates is the same as for links.
+
+```
+[tasks.template]
+    templates = [
+        [".gitconfig"]
+    ]
+```
+
+In the template file, the [go templating systax](https://godoc.org/text/template) is used for the customization of the 
+config file. With the `.Env` prefix, all environment variables are available. Template example:
+
+```
+[user]
+name = John Doe
+{{ if eq .Env.USER "john" }}
+    email = john@doe.me
+{{ else }}
+    email = john.doe@work.com
+{{ end }}
+```
+
+In addition to creating links and processing templates, Homemaker is capable of executing commands on a per-task basis.
+Commands should be defined in an array called `cmds`, split into an item per each command line argument. All of the commands
+are executed with `dest` as the working directory (as mentioned previously, this defaults to your home directory). If any
+command returns a nonzero exit code, Homemaker will display an error message and prompt the user to determine if it should
 *abort*, *retry*, or *cancel*. Additionally, if you must have explicit control of whether commands execute before or
 after the linking phase, you can use the `cmdspre` and `cmdspost` arrays which have similar behavior.
 
