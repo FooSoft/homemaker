@@ -25,6 +25,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 )
 
 type task struct {
@@ -52,6 +53,7 @@ func (t *task) deps(conf *config) []string {
 
 func (t *task) process(conf *config) error {
 	for _, currTask := range t.deps(conf) {
+		currTask = os.ExpandEnv(currTask)
 		if err := processTask(currTask, conf); err != nil {
 			return err
 		}
