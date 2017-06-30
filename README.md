@@ -248,11 +248,11 @@ itself) in the `links` block; you can read more about how to use environment var
 
 ### Environment Variables ###
 
-Homemaker supports the expansion of environment variables for both command and link blocks. This is a good way of
-avoiding having to hard code absolute paths into your configuration file. To reference an environment variable simply
-use `${ENVVAR}` or `$ENVVAR`, where `ENVVAR` is the variable name (notice the similarity to normal shell variable
-expansion). In addition to being able to reference all of the environment variables defined on your system, Homemaker
-defines a couple of extra ones for ease of use:
+Homemaker supports the expansion of environment variables for both command and link blocks as well as for dependencies.
+This is a good way of avoiding having to hard code absolute paths into your configuration file. To reference an
+environment variable simply use `${ENVVAR}` or `$ENVVAR`, where `ENVVAR` is the variable name (notice the similarity
+to normal shell variable expansion). In addition to being able to reference all of the environment variables defined
+on your system, Homemaker defines a couple of extra ones for ease of use:
 
 *   `HM_CONFIG`
 
