@@ -234,7 +234,7 @@ supports templates. The configuration syntax for templates is the same as for li
     ]
 ```
 
-In the template file, the [go templating systax](https://godoc.org/text/template) is used for the customization of the 
+In the template file, the [go templating syntax](https://godoc.org/text/template) is used for the customization of the 
 config file. With the `.Env` prefix, all environment variables are available. Template example:
 
 ```
