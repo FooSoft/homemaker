@@ -23,6 +23,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -112,6 +113,41 @@ func processCmd(params []string, interact bool, conf *config) error {
 
 	if interact {
 		return try(exec)
+	}
+
+	return exec()
+}
+
+func processCmdWithReturn(params []string, conf *config) (string, error) {
+	args := appendExpEnv(nil, params)
+	if len(args) == 0 {
+		return "", fmt.Errorf("invalid command statement")
+	}
+
+	cmdName := args[0]
+	var cmdArgs []string
+	if len(args) > 1 {
+		cmdArgs = args[1:]
+	}
+
+	if strings.HasPrefix(cmdName, "@") {
+		return "", processCmdMacro(cmdName, cmdArgs, false, conf)
+	}
+
+	if conf.flags&flagVerbose != 0 {
+		log.Printf("executing command (with return): %s %s", cmdName, strings.Join(cmdArgs, " "))
+	}
+
+	exec := func() (string, error) {
+		var stdout bytes.Buffer
+		cmd := exec.Command(cmdName, cmdArgs...)
+		cmd.Dir = conf.dstDir
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = &stdout
+		cmd.Stdin = os.Stdin
+
+		err := cmd.Run()
+		return strings.Trim(stdout.String(), "\r\n"), err
 	}
 
 	return exec()
