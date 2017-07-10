@@ -42,10 +42,16 @@ func processEnv(env []string, conf *config) error {
 		}
 		os.Unsetenv(args[0])
 		return nil
-	case len(args) == 2:
-		value = args[1]
 	default:
-		value = strings.Join(args[1:], ",")
+		if strings.HasPrefix(args[1], "!") {
+			var err error
+			args[1] = strings.TrimLeft(args[1], "!")
+			if value, err = processCmdWithReturn(args[1:], conf); err != nil {
+				return err
+			}
+		} else {
+			value = strings.Join(args[1:], ",")
+		}
 	}
 
 	if conf.flags&flagVerbose != 0 {

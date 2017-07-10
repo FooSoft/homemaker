@@ -298,8 +298,9 @@ on your system, Homemaker defines a couple of extra ones for ease of use:
 
     Variant used for task and macro execution.
 
-Environment variables can also be set within tasks block by assigning them to the `envs` variable. The example below
-demonstrates the setting and clearing of environment variables:
+Environment variables can also be set within tasks block by assigning them to the `envs` variable. The `!` prefix for,
+the first value allows to assign environment variables with the result (output of stdout) of an arbitrary command.
+The example below demonstrates the setting and clearing of environment variables:
 
 ```
 [tasks.default]
@@ -307,6 +308,7 @@ demonstrates the setting and clearing of environment variables:
         ["MYENV1", "foo"],        # set MYENV1 to foo
         ["MYENV2", "foo", "bar"], # set MYENV2 to foo,bar
         ["MYENV3"],               # clear MYENV3
+        ["MYENV4", "!hostname", "-s"], # set MYENV4 to the output of `hostname -s`
     ]
 ```
 
