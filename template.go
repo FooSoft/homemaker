@@ -104,7 +104,7 @@ func processTemplate(params []string, conf *config) (err error) {
 		log.Printf("process template %s to %s", srcPathAbs, dstPathAbs)
 	}
 
-	t, err := template.New(srcPath).ParseFiles(srcPathAbs)
+	t, err := template.ParseFiles(srcPathAbs)
 	if err != nil {
 		return err
 	}
