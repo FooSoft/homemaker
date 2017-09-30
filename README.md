@@ -86,7 +86,7 @@ markdown language processor to use based on the extension of your c:nfiguration 
 `.yaml/.yml` for YAML, and `.json` for JSON. Be aware that specifying an incorrect file extension will prevent your
 configuration file from being parsed correctly.
 
-```
+```toml
 [tasks.default]
     links = [
         [".config/fish"],
@@ -100,7 +100,7 @@ configuration file from being parsed correctly.
 
 We could have just as easily written this configuration in JSON (or YAML for that matter), but it's subjectively uglier:
 
-```
+```toml
 {
     "tasks": {
         "default": {
@@ -162,7 +162,7 @@ many unique tasks as necessary to correspond to your configuration requirements,
 by specifying it on the command line in the format `-task=taskname`. Good candidates for tasks are computer names, as
 shown in the configuration file below:
 
-```
+```toml
 [tasks.flatline]
     links = [
         [".config/syncthing", ".config/syncthing_flatline"],
@@ -193,7 +193,7 @@ Now that we have machine specific tasks defined in our configuration file, it wo
 configuration settings that are common to the two computers. We can do this by adding a `dep` array to our tasks as
 shown below:
 
-```
+```toml
 [tasks.common]
     links = [
         [".config/fish"],
@@ -227,7 +227,7 @@ Sometimes, just linking a config file is not enough, because the content of the 
 to the target and we do not want to maintain several different versions of the same file. For such use cases, Homemaker
 supports templates. The configuration syntax for templates is the same as for links.
 
-```
+```toml
 [tasks.template]
     templates = [
         [".gitconfig"]
@@ -237,7 +237,7 @@ supports templates. The configuration syntax for templates is the same as for li
 In the template file, the [go templating syntax](https://godoc.org/text/template) is used for the customization of the 
 config file. With the `.Env` prefix, all environment variables are available. Template example:
 
-```
+```toml
 [user]
 name = John Doe
 {{ if eq .Env.USER "john" }}
@@ -258,7 +258,7 @@ The example task below will clone and install configuration files for Vim into t
 links to it from the home directory. You may notice that this task references an environment variable (set by Homemaker
 itself) in the `links` block; you can read more about how to use environment variables in the following section.
 
-```
+```toml
 [tasks.vim]
     cmds = [
         ["rm", "-rf", ".config/vim"],
@@ -301,7 +301,7 @@ on your system, Homemaker defines a couple of extra ones for ease of use:
 Environment variables can also be set within tasks block by assigning them to the `envs` variable. The example below
 demonstrates the setting and clearing of environment variables:
 
-```
+```toml
 [tasks.default]
     envs = [
         ["MYENV1", "foo"],        # set MYENV1 to foo
@@ -321,7 +321,7 @@ repositories, etc. Homemaker provides macro blocks for this purpose; you can spe
 that is used to wrap the parameters you provide. For example, you can declare a macro for `apt-get install` and with the
 declaration shown below (much like tasks, macro declarations are global).
 
-```
+```toml
 [macros.install]
     prefix = ["sudo", "apt-get", "install", "-y"]
 ```
@@ -329,7 +329,7 @@ declaration shown below (much like tasks, macro declarations are global).
 Macros can be referenced from commands by prefixing the macro name with the `@` symbol (it must be the first character
 of the first item of a command). For example, the task below installs several python packages using the macro above:
 
-```
+```toml
 [tasks.python]
     cmds = [
         ["@install", "python-dev", "python-pip", "python3-pip"]
@@ -339,7 +339,7 @@ of the first item of a command). For example, the task below installs several py
 Macros can have dependencies just like tasks. The `git clone` macro below makes sure that git is installed before
 attempting to clone a repository with it.
 
-```
+```toml
 [macros.clone]
     deps = ["git"]
     prefix = ["git", "clone"]
@@ -363,7 +363,7 @@ and macro *variants*.
 For example, if you want to write a generic macro for installing packages that works on both Ubuntu and Arch Linux, you
 can define the following variants (Ubuntu uses the *apt* package manager and Arch Linux uses *pacman*).
 
-```
+```toml
 [macros.install__ubuntu]
     prefix = ["sudo", "apt-get", "install"]
 
@@ -375,7 +375,7 @@ The double underscore characters signify that the following identifier is a *var
 have to think about variants when you are writing task and macro definitions, not when using them. For example, to see
 how to use the `install` macro that we just created, examine the configuration below:
 
-```
+```toml
 [tasks.tmux]
     cmds = [["@install", "tmux"]]
 ```
@@ -390,7 +390,7 @@ $ homemaker --variant=ubuntu example.toml /mnt/data/config
 
 Tasks can be be decorated much like commands:
 
-```
+```toml
 [tasks.vim__server]
     cmds = [["@install", "vim-nox"]]
 
@@ -416,7 +416,7 @@ $ homemaker example.toml /mnt/data/config
 If for some reason you wish to explicitly reference the base task from the decorated task, you can add a dependency that
 contains a *variant override* as shown in the somewhat contrived examples below:
 
-```
+```toml
 [tasks.foo]
 [tasks.foo__specific]
     deps = ["foo__"]         # executes foo and foo_specific
@@ -449,7 +449,7 @@ the example below, we use the `which` command to see if [fish shell](https://fis
 trying to install it. This is possible because `which` returns a non-zero value when it encounters strings which do not
 correspond to applications installed on the current system.
 
-```
+```toml
 [tasks.fish]
     rejects = [["which", "fish"]]
     cmds = [["@install", "fish"], ["chsh", "-s", "/usr/bin/fish"]]
