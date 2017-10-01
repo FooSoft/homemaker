@@ -100,7 +100,7 @@ configuration file from being parsed correctly.
 
 We could have just as easily written this configuration in JSON (or YAML for that matter), but it's subjectively uglier:
 
-```toml
+```json
 {
     "tasks": {
         "default": {
@@ -234,17 +234,17 @@ supports templates. The configuration syntax for templates is the same as for li
     ]
 ```
 
-In the template file, the [go templating syntax](https://godoc.org/text/template) is used for the customization of the 
-config file. With the `.Env` prefix, all environment variables are available. Template example:
+In the template file, the [go templating syntax](https://godoc.org/text/template) is used for the customization of the
+configuration file. With the `.Env` prefix, all environment variables are available. Template example:
 
-```toml
+```
 [user]
-name = John Doe
-{{ if eq .Env.USER "john" }}
-    email = john@doe.me
-{{ else }}
-    email = john.doe@work.com
-{{ end }}
+name = "John Doe"
+{{if eq .Env.USER "john"}}
+    email = "john@doe.me"
+{{else}}
+    email = "john.doe@work.com"
+{{end}}
 ```
 
 In addition to creating links and processing templates, Homemaker is capable of executing commands on a per-task basis.
