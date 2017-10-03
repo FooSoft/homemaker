@@ -14,6 +14,18 @@ data.
 
 ![](https://foosoft.net/projects/homemaker/img/demo.gif)
 
+## Table of Contents ##
+
+*   [Motivation](https://foosoft.net/projects/homemaker/#motivation)
+*   [Installation](https://foosoft.net/projects/homemaker/#installation)
+*   [Configuration](https://foosoft.net/projects/homemaker/#configuration)
+    *   [Environment Variables](https://foosoft.net/projects/homemaker/#environment-variables)
+    *   [Command Macros](https://foosoft.net/projects/homemaker/#command-macros)
+    *   [Task and Macro Variants](https://foosoft.net/projects/homemaker/#task-and-macro-variants)
+    *   [Conditional Execution](https://foosoft.net/projects/homemaker/#conditional-execution)
+*   [Usage](https://foosoft.net/projects/homemaker/#usage)
+*   [License](https://foosoft.net/projects/homemaker/#license)
+
 ## Motivation ##
 
 Ever since switching to using Linux as my daily driver operating system, I have been searching for a way to effectively
