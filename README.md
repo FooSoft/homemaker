@@ -78,13 +78,13 @@ $ go get github.com/FooSoft/homemaker
 
 Otherwise, you can use the pre-built binaries for the platforms below:
 
-*   [homemaker_darwin_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_darwin_386.tar.gz)
-*   [homemaker_darwin_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_darwin_amd64.tar.gz)
-*   [homemaker_linux_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_linux_386.tar.gz)
-*   [homemaker_linux_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_linux_amd64.tar.gz)
-*   [homemaker_linux_arm.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_linux_arm.tar.gz)
-*   [homemaker_windows_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_windows_386.tar.gz)
-*   [homemaker_windows_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_windows_amd64.tar.gz)
+*   [homemaker\_darwin\_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_darwin_386.tar.gz)
+*   [homemaker\_darwin\_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_darwin_amd64.tar.gz)
+*   [homemaker\_linux\_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_linux_386.tar.gz)
+*   [homemaker\_linux\_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_linux_amd64.tar.gz)
+*   [homemaker\_linux\_arm.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_linux_arm.tar.gz)
+*   [homemaker\_windows\_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_windows_386.tar.gz)
+*   [homemaker\_windows\_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_windows_amd64.tar.gz)
 
 ## Configuration ##
 
