@@ -7,11 +7,6 @@ installation, has no dependencies and makes use of simple configuration file str
 [make](https://en.wikipedia.org/wiki/Make_%28software%29) to generate symlinks and execute system commands to aid in
 configuring a new system for use.
 
-Naturally, I use Homemaker to manage my own dot-files, which you can view on the respective [project
-page](https://github.com/FooSoft/dotfiles). Once there, you may want to take a look at the
-[config.toml](https://github.com/FooSoft/dotfiles/blob/master/config.toml) file, which contains the actual configuration
-data.
-
 ![](https://foosoft.net/projects/homemaker/img/demo.gif)
 
 ## Table of Contents ##
@@ -24,6 +19,7 @@ data.
     *   [Task and Macro Variants](https://foosoft.net/projects/homemaker/#task-and-macro-variants)
     *   [Conditional Execution](https://foosoft.net/projects/homemaker/#conditional-execution)
 *   [Usage](https://foosoft.net/projects/homemaker/#usage)
+*   [Sample](https://foosoft.net/projects/homemaker/#sample)
 *   [License](https://foosoft.net/projects/homemaker/#license)
 
 ## Motivation ##
@@ -528,6 +524,117 @@ provides a more detailed description of what the parameters do.
 
     When something isn't going the way you expect, you can use this parameter to make Homemaker to log everything it is
     doing to console.
+
+## Sample ##
+
+Below is a sample configuration file which should help to illustrate how Homemaker can be used in practice.
+
+```toml
+#
+# macros
+#
+
+[macros.clone]
+    deps = ["git"]
+    prefix = ["git", "clone"]
+
+[macros.install]
+    prefix = ["sudo", "dnf", "install", "-y"]
+
+[macros.go-get]
+    deps = ["golang"]
+    prefix = ["go", "get"]
+
+[macros.npm-install]
+    deps = ["node"]
+    prefix = ["sudo", "npm", "install", "-g"]
+
+
+#
+# development
+#
+
+[tasks.dev]
+    deps = ["git", "vim", "node", "python", "golang"]
+    cmds = [[
+        "@install",
+        "make",
+        "automake",
+        "gcc",
+        "gcc-c++",
+        "cmake",
+        "the_silver_searcher",
+        "meld",
+        "ncurses-compat-libs",
+    ]]
+
+[tasks.git]
+    cmds = [["@install", "git"]]
+    links = [[".gitconfig"]]
+
+[tasks.golang]
+    envs = [["GOPATH", "${HM_DEST}/projects/go"]]
+    cmds = [["mkdir", "-p", "$GOPATH"], ["@install", "golang"]]
+
+[tasks.node]
+    cmds = [["@install", "nodejs", "npm"]]
+
+[tasks.python]
+    cmds = [["@install", "python-devel", "python-pip"]]
+
+[tasks.vim]
+    deps = ["vimrc"]
+    cmds = [["@install", "vim-X11", "vim-enhanced"]]
+
+[tasks.vimrc]
+    rejects = [["test", "-d", ".config/vim"]]
+    cmds = [["@clone", "https://github.com/FooSoft/dotvim.git", ".config/vim"]]
+    links = [
+        [".vim", "$HM_DEST/.config/vim/.vim"],
+        [".vimrc", "$HM_DEST/.config/vim/.vimrc"],
+        [".eslintrc.json"],
+    ]
+
+
+#
+# general
+#
+
+[tasks.fusion]
+    cmds = [["/home/alex/projects/dotfiles/bin/fusion.sh"]]
+
+[tasks.virtualbox]
+    cmds = [["@install", "VirtualBox"]]
+
+[tasks.nvidia]
+    deps = ["fusion"]
+    cmds = [["@install", "akmod-nvidia"]]
+
+[tasks.vlc]
+    deps = ["fusion"]
+    cmds = [["@install", "vlc"]]
+
+[tasks.dropbox]
+    deps = ["fusion"]
+    cmds = [["@install", "dropbox"]]
+
+[tasks.fish]
+    rejects = [["which", "fish"]]
+    cmds = [["@install", "fish"], ["chsh", "-s", "/usr/bin/fish"]]
+    links = [[".config/fish/config.fish"]]
+
+[tasks.common_term]
+    cmds = [["@install", "openssh-server", "fzf", "htop", "p7zip", "unrar", "tmux", "whois", "rsync"]]
+    links = [["bin"]]
+
+[tasks.ibus]
+    cmds = [["@install", "ibus", "ibus-anthy", "ibus-qt"]]
+
+[tasks.default]
+    deps = ["fusion", "common_term", "ibus", "vlc", "dropbox", "dev"]
+    cmds = [["@install", "gimp", "keepassxc", "speedcrunch"]]
+    links = [[".profile"]]
+```
 
 ## License ##
 
