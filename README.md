@@ -540,15 +540,6 @@ Below is a sample configuration file which should help to illustrate how Homemak
 [macros.install]
     prefix = ["sudo", "dnf", "install", "-y"]
 
-[macros.go-get]
-    deps = ["golang"]
-    prefix = ["go", "get"]
-
-[macros.npm-install]
-    deps = ["node"]
-    prefix = ["sudo", "npm", "install", "-g"]
-
-
 #
 # development
 #
@@ -593,7 +584,6 @@ Below is a sample configuration file which should help to illustrate how Homemak
         [".vimrc", "$HM_DEST/.config/vim/.vimrc"],
         [".eslintrc.json"],
     ]
-
 
 #
 # general
