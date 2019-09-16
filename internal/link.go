@@ -20,7 +20,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package internal
 
 import (
 	"fmt"
@@ -99,7 +99,7 @@ func parseLink(params []string) (srcPath, dstPath string, mode os.FileMode, err 
 	return
 }
 
-func processLink(params []string, conf *config) error {
+func processLink(params []string, conf *Config) error {
 	srcPath, dstPath, mode, err := parseLink(params)
 	if err != nil {
 		return err
@@ -107,12 +107,12 @@ func processLink(params []string, conf *config) error {
 
 	srcPathAbs := srcPath
 	if !path.IsAbs(srcPathAbs) {
-		srcPathAbs = path.Join(conf.srcDir, srcPath)
+		srcPathAbs = path.Join(conf.SrcDir, srcPath)
 	}
 
 	dstPathAbs := dstPath
 	if !path.IsAbs(dstPathAbs) {
-		dstPathAbs = path.Join(conf.dstDir, dstPath)
+		dstPathAbs = path.Join(conf.DstDir, dstPath)
 	}
 
 	if conf.flags&flagUnlink != flagUnlink {

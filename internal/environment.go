@@ -20,85 +20,44 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package internal
 
 import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
-func appendExpEnv(dst, src []string) []string {
-	for _, value := range src {
-		dst = append(dst, os.ExpandEnv(value))
-	}
+func processEnv(env []string, conf *Config) error {
+	args := appendExpEnv(nil, env)
 
-	return dst
-}
-
-func makeAbsPath(path string) string {
-	path, err := filepath.Abs(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return path
-}
-
-func makeVariantNames(name, variant string) []string {
-	if nameParts := strings.Split(name, "__"); len(nameParts) > 1 {
-		variant = nameParts[len(nameParts)-1]
-		name = strings.Join(nameParts[:len(nameParts)-1], "")
-	}
-
-	names := []string{name}
-	if len(variant) > 0 && !strings.HasSuffix(name, "__") {
-		names = []string{fmt.Sprint(name, "__", variant), name}
-	}
-
-	return names
-}
-
-func prompt(prompts ...string) bool {
-	for {
-		fmt.Printf("%s: [y]es, [n]o? ", strings.Join(prompts, " "))
-
-		var ans string
-		fmt.Scanln(&ans)
-
-		switch strings.ToLower(ans) {
-		case "y":
-			return true
-		case "n":
-			return false
+	var value string
+	switch {
+	case len(args) == 0:
+		return fmt.Errorf("invalid environment statement")
+	case len(args) == 1:
+		if conf.flags&flagVerbose != 0 {
+			log.Printf("unsetting variable: %s", args[0])
 		}
-	}
-}
-
-func try(task func() error) error {
-	for {
-		err := task()
-		if err == nil {
-			return nil
-		}
-
-	loop:
-		for {
-			fmt.Printf("%s: [a]bort, [r]etry, [c]ancel? ", err)
-
-			var ans string
-			fmt.Scanln(&ans)
-
-			switch strings.ToLower(ans) {
-			case "a":
+		os.Unsetenv(args[0])
+		return nil
+	default:
+		if strings.HasPrefix(args[1], "!") {
+			var err error
+			args[1] = strings.TrimLeft(args[1], "!")
+			if value, err = processCmdWithReturn(args[1:], conf); err != nil {
 				return err
-			case "r":
-				break loop
-			case "c":
-				return nil
 			}
+		} else {
+			value = strings.Join(args[1:], ",")
 		}
 	}
+
+	if conf.flags&flagVerbose != 0 {
+		log.Printf("setting variable %s to %s", args[0], value)
+	}
+
+	os.Setenv(args[0], value)
+	return nil
 }

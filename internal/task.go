@@ -20,7 +20,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package internal
 
 import (
 	"fmt"
@@ -40,7 +40,7 @@ type task struct {
 	Templates [][]string
 }
 
-func (t *task) deps(conf *config) []string {
+func (t *task) deps(conf *Config) []string {
 	deps := t.Deps
 
 	if conf.flags&flagNoCmds == 0 {
@@ -52,10 +52,10 @@ func (t *task) deps(conf *config) []string {
 	return deps
 }
 
-func (t *task) process(conf *config) error {
+func (t *task) process(conf *Config) error {
 	for _, currTask := range t.deps(conf) {
 		currTask = os.ExpandEnv(currTask)
-		if err := processTask(currTask, conf); err != nil {
+		if err := ProcessTask(currTask, conf); err != nil {
 			return err
 		}
 	}
@@ -107,7 +107,7 @@ func (t *task) process(conf *config) error {
 	return nil
 }
 
-func (t *task) skippable(conf *config) bool {
+func (t *task) skippable(conf *Config) bool {
 	for _, currCnd := range t.Accepts {
 		if err := processCmd(currCnd, false, conf); err != nil {
 			return true
@@ -123,8 +123,11 @@ func (t *task) skippable(conf *config) bool {
 	return false
 }
 
-func processTask(taskName string, conf *config) error {
-	for _, tn := range makeVariantNames(taskName, conf.variant) {
+func ProcessTask(taskName string, conf *Config) error {
+	for _, tn := range makeVariantNames(taskName, conf.Variant) {
+		if conf.flags&flagVerbose != 0 {
+			log.Printf("starting task: %s", tn)
+		}
 		t, ok := conf.Tasks[tn]
 		if !ok {
 			continue

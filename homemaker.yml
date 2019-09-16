@@ -1,0 +1,7 @@
+home-src: ./test/src
+home-dst: ./test/dst
+
+tasks:
+  default:
+    links:
+      - ["sample.conf"]

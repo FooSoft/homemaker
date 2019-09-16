@@ -20,7 +20,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package internal
 
 import (
 	"fmt"
@@ -72,7 +72,7 @@ func parseTemplate(params []string) (srcPath, dstPath string, mode os.FileMode, 
 	return
 }
 
-func processTemplate(params []string, conf *config) (err error) {
+func processTemplate(params []string, conf *Config) (err error) {
 	srcPath, dstPath, mode, err := parseTemplate(params)
 	if err != nil {
 		return err
@@ -80,12 +80,12 @@ func processTemplate(params []string, conf *config) (err error) {
 
 	srcPathAbs := srcPath
 	if !path.IsAbs(srcPathAbs) {
-		srcPathAbs = path.Join(conf.srcDir, srcPath)
+		srcPathAbs = path.Join(conf.SrcDir, srcPath)
 	}
 
 	dstPathAbs := dstPath
 	if !path.IsAbs(dstPathAbs) {
-		dstPathAbs = path.Join(conf.dstDir, dstPath)
+		dstPathAbs = path.Join(conf.DstDir, dstPath)
 	}
 
 	if _, err = os.Stat(srcPathAbs); os.IsNotExist(err) {

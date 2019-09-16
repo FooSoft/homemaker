@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2015 Alex Yatskov <alex@foosoft.net>
- * Author: Alex Yatskov <alex@foosoft.net>
+ * Copyright (c) 2018 Metalblueberry <metalblueberry@gmail.com>
+ * Author: Metalblueberry <metalblueberry@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -19,45 +19,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
 package main
 
-import (
-	"fmt"
-	"log"
-	"os"
-	"strings"
-)
+import "github.com/FooSoft/homemaker/cmd"
 
-func processEnv(env []string, conf *config) error {
-	args := appendExpEnv(nil, env)
-
-	var value string
-	switch {
-	case len(args) == 0:
-		return fmt.Errorf("invalid environment statement")
-	case len(args) == 1:
-		if conf.flags&flagVerbose != 0 {
-			log.Printf("unsetting variable: %s", args[0])
-		}
-		os.Unsetenv(args[0])
-		return nil
-	default:
-		if strings.HasPrefix(args[1], "!") {
-			var err error
-			args[1] = strings.TrimLeft(args[1], "!")
-			if value, err = processCmdWithReturn(args[1:], conf); err != nil {
-				return err
-			}
-		} else {
-			value = strings.Join(args[1:], ",")
-		}
-	}
-
-	if conf.flags&flagVerbose != 0 {
-		log.Printf("setting variable %s to %s", args[0], value)
-	}
-
-	os.Setenv(args[0], value)
-	return nil
+func main() {
+	cmd.Execute()
 }

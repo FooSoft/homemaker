@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2015 Alex Yatskov <alex@foosoft.net>
- * Author: Alex Yatskov <alex@foosoft.net>
+ * Copyright (c) 2018 Metalblueberry <metalblueberry@gmail.com>
+ * Author: Metalblueberry <metalblueberry@gmail.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,52 +20,16 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package cmd_test
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"path"
-
-	"github.com/naoina/toml"
-	"gopkg.in/yaml.v2"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	//. "github.com/FooSoft/homemaker/cmd"
 )
 
-type config struct {
-	Tasks  map[string]task
-	Macros map[string]macro
-
-	handled map[string]bool
-	srcDir  string
-	dstDir  string
-	variant string
-	flags   int
-}
-
-func newConfig(filename string) (*config, error) {
-	bytes, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-
-	conf := &config{handled: make(map[string]bool)}
-	switch path.Ext(filename) {
-	case ".json":
-		if err := json.Unmarshal(bytes, &conf); err != nil {
-			return nil, err
-		}
-	case ".toml", ".tml":
-		if err := toml.Unmarshal(bytes, &conf); err != nil {
-			return nil, err
-		}
-	case ".yaml", ".yml":
-		if err := yaml.Unmarshal(bytes, &conf); err != nil {
-			return nil, err
-		}
-	default:
-		return nil, fmt.Errorf("unsupported configuration file format")
-	}
-
-	return conf, nil
-}
+var _ = Describe("Root functionality", func() {
+	It("", func() {
+		Expect(true).To(BeTrue())
+	})
+})
