@@ -30,11 +30,11 @@ import (
 	"strconv"
 )
 
-func cleanPath(loc string, flags int) error {
+func cleanPath(loc string, conf *Config) error {
 	if info, _ := os.Lstat(loc); info != nil {
 		if info.Mode()&os.ModeSymlink == 0 {
-			if flags&flagClobber != 0 || prompt("clobber path", loc) {
-				if flags&flagVerbose != 0 {
+			if conf.Clobber || prompt("clobber path", loc) {
+				if conf.Verbose {
 					log.Printf("clobbering path: %s", loc)
 				}
 				if err := os.RemoveAll(loc); err != nil {
@@ -42,7 +42,7 @@ func cleanPath(loc string, flags int) error {
 				}
 			}
 		} else {
-			if flags&flagVerbose != 0 {
+			if conf.Verbose {
 				log.Printf("removing symlink: %s", loc)
 			}
 			if err := os.Remove(loc); err != nil {
@@ -54,12 +54,12 @@ func cleanPath(loc string, flags int) error {
 	return nil
 }
 
-func createPath(loc string, flags int, mode os.FileMode) error {
+func createPath(loc string, conf *Config, mode os.FileMode) error {
 	parentDir := path.Dir(loc)
 
 	if _, err := os.Stat(parentDir); os.IsNotExist(err) {
-		if flags&flagForce != 0 || prompt("force create path", parentDir) {
-			if flags&flagVerbose != 0 {
+		if conf.Force || prompt("force create path", parentDir) {
+			if conf.Verbose {
 				log.Printf("force creating path: %s", parentDir)
 			}
 			if err := os.MkdirAll(parentDir, mode); err != nil {
@@ -115,32 +115,32 @@ func processLink(params []string, conf *Config) error {
 		dstPathAbs = path.Join(conf.DstDir, dstPath)
 	}
 
-	if conf.flags&flagUnlink != flagUnlink {
+	if conf.Unlink {
+		stat, err := os.Lstat(dstPathAbs)
+		if os.IsNotExist(err) || stat.Mode()&os.ModeSymlink == 0 {
+			return nil
+		}
+
+		return try(func() error { return cleanPath(dstPathAbs, conf) })
+	} else {
 		if _, err := os.Stat(srcPathAbs); os.IsNotExist(err) {
 			return fmt.Errorf("source path %s does not exist in filesystem", srcPathAbs)
 		}
 
-		if err := try(func() error { return createPath(dstPathAbs, conf.flags, mode) }); err != nil {
+		if err := try(func() error { return createPath(dstPathAbs, conf, mode) }); err != nil {
 			return err
 		}
 
-		if err := try(func() error { return cleanPath(dstPathAbs, conf.flags) }); err != nil {
+		if err := try(func() error { return cleanPath(dstPathAbs, conf) }); err != nil {
 			return err
 		}
 
-		if conf.flags&flagVerbose != 0 {
+		if conf.Verbose {
 			log.Printf("linking %s to %s", srcPathAbs, dstPathAbs)
 		}
 
 		return try(func() error {
 			return os.Symlink(srcPathAbs, dstPathAbs)
 		})
-	} else {
-		stat, err := os.Lstat(dstPathAbs)
-		if os.IsNotExist(err) || stat.Mode()&os.ModeSymlink == 0 {
-			return nil
-		}
-
-		return try(func() error { return cleanPath(dstPathAbs, conf.flags) })
 	}
 }

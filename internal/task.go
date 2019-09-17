@@ -43,7 +43,7 @@ type task struct {
 func (t *task) deps(conf *Config) []string {
 	deps := t.Deps
 
-	if conf.flags&flagNoCmds == 0 {
+	if !conf.Nocmds {
 		for _, currCmd := range t.Cmds {
 			deps = append(deps, findCmdDeps(currCmd, conf)...)
 		}
@@ -66,7 +66,7 @@ func (t *task) process(conf *Config) error {
 		}
 	}
 
-	if conf.flags&flagNoCmds == 0 {
+	if !conf.Nocmds {
 		for _, currCmd := range t.CmdsPre {
 			if err := processCmd(currCmd, true, conf); err != nil {
 				return err
@@ -80,7 +80,7 @@ func (t *task) process(conf *Config) error {
 		}
 	}
 
-	if conf.flags&flagNoLinks == 0 {
+	if !conf.Nolinks {
 		for _, currLink := range t.Links {
 			if err := processLink(currLink, conf); err != nil {
 				return err
@@ -88,7 +88,7 @@ func (t *task) process(conf *Config) error {
 		}
 	}
 
-	if conf.flags&flagNoTemplates == 0 {
+	if !conf.Notemplates {
 		for _, currTmpl := range t.Templates {
 			if err := processTemplate(currTmpl, conf); err != nil {
 				return err
@@ -96,7 +96,7 @@ func (t *task) process(conf *Config) error {
 		}
 	}
 
-	if conf.flags&flagNoCmds == 0 {
+	if !conf.Nocmds {
 		for _, currCmd := range t.CmdsPost {
 			if err := processCmd(currCmd, true, conf); err != nil {
 				return err
@@ -125,7 +125,7 @@ func (t *task) skippable(conf *Config) bool {
 
 func ProcessTask(taskName string, conf *Config) error {
 	for _, tn := range makeVariantNames(taskName, conf.Variant) {
-		if conf.flags&flagVerbose != 0 {
+		if conf.Verbose {
 			log.Printf("starting task: %s", tn)
 		}
 		t, ok := conf.Tasks[tn]
@@ -134,14 +134,14 @@ func ProcessTask(taskName string, conf *Config) error {
 		}
 
 		if conf.handled[tn] || t.skippable(conf) {
-			if conf.flags&flagVerbose != 0 {
+			if conf.Verbose {
 				log.Printf("skipping task: %s", tn)
 			}
 
 			return nil
 		}
 
-		if conf.flags&flagVerbose != 0 {
+		if conf.Verbose {
 			log.Printf("processing task: %s", tn)
 		}
 

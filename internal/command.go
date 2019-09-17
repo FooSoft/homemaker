@@ -72,7 +72,7 @@ func processCmdMacro(macroName string, args []string, interact bool, conf *Confi
 	margs = appendExpEnv(margs, args)
 	margs = appendExpEnv(margs, m.Suffix)
 
-	if conf.flags&flagVerbose != 0 {
+	if conf.Verbose {
 		log.Printf("expanding macro: %s", mn)
 	}
 
@@ -95,7 +95,7 @@ func processCmd(params []string, interact bool, conf *Config) error {
 		return processCmdMacro(cmdName, cmdArgs, interact, conf)
 	}
 
-	if conf.flags&flagVerbose != 0 {
+	if conf.Verbose {
 		log.Printf("executing command: %s %s", cmdName, strings.Join(cmdArgs, " "))
 	}
 
@@ -134,7 +134,7 @@ func processCmdWithReturn(params []string, conf *Config) (string, error) {
 		return "", processCmdMacro(cmdName, cmdArgs, false, conf)
 	}
 
-	if conf.flags&flagVerbose != 0 {
+	if conf.Verbose {
 		log.Printf("executing command (with return): %s %s", cmdName, strings.Join(cmdArgs, " "))
 	}
 

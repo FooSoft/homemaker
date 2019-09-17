@@ -28,17 +28,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-const (
-	flagClobber = 1 << iota
-	flagForce
-	flagVerbose
-	flagNoCmds
-	flagNoLinks
-	flagNoTemplates
-	flagNoMacro
-	flagUnlink = flagNoCmds | (1 << iota)
-)
-
 type Config struct {
 	Tasks   map[string]task
 	Macros  map[string]macro
@@ -56,7 +45,6 @@ type Config struct {
 	Unlink      bool
 
 	handled map[string]bool
-	flags   int
 }
 
 func GenerateConfigStruct() (*Config, error) {
@@ -75,29 +63,9 @@ func (c *Config) digest() {
 	c.SrcDir = makeAbsPath(c.SrcDir)
 	c.DstDir = makeAbsPath(c.DstDir)
 
-	flags := 0
-	if c.Clobber {
-		flags |= flagClobber
-	}
-	if c.Force {
-		flags |= flagForce
-	}
-	if c.Verbose {
-		flags |= flagVerbose
-	}
-	if c.Nocmds {
-		flags |= flagNoCmds
-	}
-	if c.Nolinks {
-		flags |= flagNoLinks
-	}
-	if c.Notemplates {
-		flags |= flagNoTemplates
-	}
 	if c.Unlink {
-		flags |= flagUnlink
+		c.Nocmds = true
 	}
-	c.flags = flags
 }
 
 func (c *Config) SetEnv() {
