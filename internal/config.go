@@ -28,6 +28,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Config stores the run configurtion
 type Config struct {
 	Tasks   map[string]task
 	Macros  map[string]macro
@@ -47,6 +48,7 @@ type Config struct {
 	handled map[string]bool
 }
 
+// GenerateConfigStruct loads the configuration file and outputs a digested configuration ready to be used.
 func GenerateConfigStruct() (*Config, error) {
 	conf := &Config{handled: make(map[string]bool)}
 	err := viper.Unmarshal(conf)
@@ -68,7 +70,7 @@ func (c *Config) digest() {
 	}
 }
 
-func (c *Config) SetEnv() {
+func (c *Config) setEnv() {
 	os.Setenv("HM_CONFIG", c.File)
 	os.Setenv("HM_SRC", c.SrcDir)
 	os.Setenv("HM_DEST", c.DstDir)
