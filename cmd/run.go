@@ -43,8 +43,6 @@ var runCmd = &cobra.Command{
 			taskName = args[0]
 		}
 
-		os.Setenv("HM_TASK", taskName)
-
 		conf, err := internal.GenerateConfigStruct()
 		if err != nil {
 			panic(err)
