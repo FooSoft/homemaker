@@ -24,7 +24,6 @@ package cmd
 
 import (
 	"log"
-	"os"
 
 	"github.com/FooSoft/homemaker/internal"
 	"github.com/spf13/cobra"
@@ -36,22 +35,24 @@ var runCmd = &cobra.Command{
 	Short: "Run the desired task",
 	Args:  cobra.MaximumNArgs(1),
 	Long:  `Refer to external documentation at https://foosoft.net/projects/homemaker/`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run:   Run,
+}
 
-		taskName := "default"
-		if len(args) == 1 {
-			taskName = args[0]
-		}
+func Run(_ *cobra.Command, args []string) {
+	taskName := "default"
+	if len(args) == 1 {
+		taskName = args[0]
+	}
 
-		conf, err := internal.GenerateConfigStruct()
-		if err != nil {
-			panic(err)
-		}
+	conf := &internal.Config{}
+	err := viper.Unmarshal(conf)
+	if err != nil {
+		panic(err)
+	}
 
-		log.Printf("Execute task %#v", taskName)
+	log.Printf("Execute task %#v", taskName)
 
-		internal.ProcessTask(taskName, conf)
-	},
+	internal.ProcessTask(taskName, conf)
 }
 
 func init() {

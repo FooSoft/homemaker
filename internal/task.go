@@ -125,6 +125,9 @@ func (t *task) skippable(conf *Config) bool {
 
 // Entry point to process a task given a name and the full config file
 func ProcessTask(taskName string, conf *Config) error {
+	log.Printf("Execute task %#v", taskName)
+
+	conf.digest()
 	conf.setEnv()
 	os.Setenv("HM_TASK", taskName)
 

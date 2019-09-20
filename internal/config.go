@@ -24,8 +24,6 @@ package internal
 
 import (
 	"os"
-
-	"github.com/spf13/viper"
 )
 
 // Config stores the run configurtion
@@ -48,20 +46,8 @@ type Config struct {
 	handled map[string]bool
 }
 
-// GenerateConfigStruct loads the configuration file and outputs a digested configuration ready to be used.
-func GenerateConfigStruct() (*Config, error) {
-	conf := &Config{handled: make(map[string]bool)}
-	err := viper.Unmarshal(conf)
-	if err != nil {
-		return nil, err
-	}
-
-	conf.digest()
-
-	return conf, nil
-}
-
 func (c *Config) digest() {
+	c.handled = make(map[string]bool)
 	c.SrcDir = makeAbsPath(c.SrcDir)
 	c.DstDir = makeAbsPath(c.DstDir)
 

@@ -1,0 +1,4 @@
+tasks:
+  simple-link:
+    links:
+      - ["sample.conf"]
