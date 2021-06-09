@@ -1,4 +1,4 @@
-# Homemaker #
+# Homemaker
 
 Homemaker is a lightweight tool for straightforward and efficient management of \*nix configuration files found in the
 user's home directory, commonly known as dot-files. It can also be readily used for general purpose system
@@ -9,19 +9,19 @@ configuring a new system for use.
 
 ![](https://foosoft.net/projects/homemaker/img/demo.gif)
 
-## Table of Contents ##
+## Table of Contents
 
-*   [Motivation](https://foosoft.net/projects/homemaker/#motivation)
-*   [Installation](https://foosoft.net/projects/homemaker/#installation)
-*   [Configuration](https://foosoft.net/projects/homemaker/#configuration)
-    *   [Environment Variables](https://foosoft.net/projects/homemaker/#environment-variables)
-    *   [Command Macros](https://foosoft.net/projects/homemaker/#command-macros)
-    *   [Task and Macro Variants](https://foosoft.net/projects/homemaker/#task-and-macro-variants)
-    *   [Conditional Execution](https://foosoft.net/projects/homemaker/#conditional-execution)
-*   [Usage](https://foosoft.net/projects/homemaker/#usage)
-*   [Sample](https://foosoft.net/projects/homemaker/#sample)
+*   [Motivation](#motivation)
+*   [Installation](#installation)
+*   [Configuration](#configuration)
+    *   [Environment Variables](#environment-variables)
+    *   [Command Macros](#command-macros)
+    *   [Task and Macro Variants](#task-and-macro-variants)
+    *   [Conditional Execution](#conditional-execution)
+*   [Usage](#usage)
+*   [Sample](#sample)
 
-## Motivation ##
+## Motivation
 
 Ever since switching to using Linux as my daily driver operating system, I have been searching for a way to effectively
 manage settings between different computers (and system reinstalls on the same machine) while avoiding the accumulation
@@ -63,7 +63,7 @@ easy to understand, executables built by the Go compiler are statically linked, 
 the binary on your system and you are ready! The result of my work is Homemaker; I hope that you find it suitable for
 your needs.
 
-## Installation ##
+## Installation
 
 If you already have the Go environment and toolchain set up, you can get the latest version by running:
 
@@ -81,7 +81,7 @@ Otherwise, you can use the pre-built binaries for the platforms below:
 *   [homemaker\_windows\_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_windows_386.tar.gz)
 *   [homemaker\_windows\_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_windows_amd64.tar.gz)
 
-## Configuration ##
+## Configuration
 
 Configuration files for Homemaker can be authored in your choice of [TOML](https://github.com/toml-lang/toml),
 [JSON](http://json.org/), or [YAML](http://yaml.org/)  markup languages. Being the easiest to read out of the three,
@@ -277,7 +277,7 @@ itself) in the `links` block; you can read more about how to use environment var
     ]
 ```
 
-### Environment Variables ###
+### Environment Variables
 
 Homemaker supports the expansion of environment variables for both command and link blocks as well as for dependencies.
 This is a good way of avoiding having to hard code absolute paths into your configuration file. To reference an
@@ -321,7 +321,7 @@ It should be pointed out that it is possible to reference other environment vari
 first part of this section. This makes it possible to expand variables like `PATH` without overwriting their existing
 value.
 
-### Command Macros ###
+### Command Macros
 
 It is often convenient to execute certain commands repeatedly within task blocks to install packages, clone git
 repositories, etc. Homemaker provides macro blocks for this purpose; you can specify a command *prefix* and *suffix*
@@ -360,7 +360,7 @@ attempting to clone a repository with it.
 Macros help reduce the clutter that comes from the repeated commands which must be executed to bootstrap a new system.
 When executed with the `verbose` option, Homemaker will echo the expanded macro commands before executing them.
 
-### Task and Macro Variants ###
+### Task and Macro Variants
 
 If you wish to use this tool in a truly cross-platform and cross-distribution manner without authoring multiple
 configuration files, you will have to provide information to Homemaker about the environment it is running in. Different
@@ -437,7 +437,7 @@ Although variants are somewhat of an advanced topic as far as Homemaker features
 provide some basic conditional functionality to your configuration file without significantly increasing complexity for
 the user.
 
-### Conditional Execution ###
+### Conditional Execution
 
 Homemaker provides a facility for determining whether or not a given task should execute at runtime; this is
 accomplished with the `accepts` and `rejects` task variables. Both follow the same syntax as the `cmds` variable and
@@ -466,7 +466,7 @@ correspond to applications installed on the current system.
 The `accepts` variable is the logical opposite of `rejects` and can be used to conditionally execute tasks only when all
 of the specified commands exit out with a return code of zero.
 
-## Usage ##
+## Usage
 
 Executing Homemaker with the `-help` command line argument will trigger online help to be displayed. The list below
 provides a more detailed description of what the parameters do.
@@ -524,7 +524,7 @@ provides a more detailed description of what the parameters do.
     When something isn't going the way you expect, you can use this parameter to make Homemaker to log everything it is
     doing to console.
 
-## Sample ##
+## Sample
 
 Below is a sample configuration file which should help to illustrate how Homemaker can be used in practice.
 
