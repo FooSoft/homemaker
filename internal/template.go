@@ -20,7 +20,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package internal
 
 import (
 	"fmt"
@@ -72,7 +72,7 @@ func parseTemplate(params []string) (srcPath, dstPath string, mode os.FileMode, 
 	return
 }
 
-func processTemplate(params []string, conf *config) (err error) {
+func processTemplate(params []string, conf *Config) (err error) {
 	srcPath, dstPath, mode, err := parseTemplate(params)
 	if err != nil {
 		return err
@@ -80,27 +80,27 @@ func processTemplate(params []string, conf *config) (err error) {
 
 	srcPathAbs := srcPath
 	if !path.IsAbs(srcPathAbs) {
-		srcPathAbs = path.Join(conf.srcDir, srcPath)
+		srcPathAbs = path.Join(conf.SrcDir, srcPath)
 	}
 
 	dstPathAbs := dstPath
 	if !path.IsAbs(dstPathAbs) {
-		dstPathAbs = path.Join(conf.dstDir, dstPath)
+		dstPathAbs = path.Join(conf.DstDir, dstPath)
 	}
 
 	if _, err = os.Stat(srcPathAbs); os.IsNotExist(err) {
 		return fmt.Errorf("source path %s does not exist in filesystem", srcPathAbs)
 	}
 
-	if err = try(func() error { return createPath(dstPathAbs, conf.flags, mode) }); err != nil {
+	if err = try(func() error { return createPath(dstPathAbs, conf, mode) }); err != nil {
 		return err
 	}
 
-	if err = try(func() error { return cleanPath(dstPathAbs, conf.flags) }); err != nil {
+	if err = try(func() error { return cleanPath(dstPathAbs, conf) }); err != nil {
 		return err
 	}
 
-	if conf.flags&flagVerbose != 0 {
+	if conf.Verbose {
 		log.Printf("process template %s to %s", srcPathAbs, dstPathAbs)
 	}
 

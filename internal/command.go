@@ -20,7 +20,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package internal
 
 import (
 	"bytes"
@@ -37,10 +37,10 @@ type macro struct {
 	Suffix []string
 }
 
-func findCmdMacro(macroName string, conf *config) (*macro, string) {
+func findCmdMacro(macroName string, conf *Config) (*macro, string) {
 	if strings.HasPrefix(macroName, "@") {
 		mn := strings.TrimPrefix(macroName, "@")
-		for _, mn := range makeVariantNames(mn, conf.variant) {
+		for _, mn := range makeVariantNames(mn, conf.Variant) {
 			if m, ok := conf.Macros[mn]; ok {
 				return &m, mn
 			}
@@ -50,7 +50,7 @@ func findCmdMacro(macroName string, conf *config) (*macro, string) {
 	return nil, ""
 }
 
-func findCmdDeps(params []string, conf *config) []string {
+func findCmdDeps(params []string, conf *Config) []string {
 	if len(params) == 0 {
 		return nil
 	}
@@ -62,7 +62,7 @@ func findCmdDeps(params []string, conf *config) []string {
 	return nil
 }
 
-func processCmdMacro(macroName string, args []string, interact bool, conf *config) error {
+func processCmdMacro(macroName string, args []string, interact bool, conf *Config) error {
 	m, mn := findCmdMacro(macroName, conf)
 	if m == nil {
 		return fmt.Errorf("macro or variant not found: %s", macroName)
@@ -72,14 +72,14 @@ func processCmdMacro(macroName string, args []string, interact bool, conf *confi
 	margs = appendExpEnv(margs, args)
 	margs = appendExpEnv(margs, m.Suffix)
 
-	if conf.flags&flagVerbose != 0 {
+	if conf.Verbose {
 		log.Printf("expanding macro: %s", mn)
 	}
 
 	return processCmd(margs, interact, conf)
 }
 
-func processCmd(params []string, interact bool, conf *config) error {
+func processCmd(params []string, interact bool, conf *Config) error {
 	args := appendExpEnv(nil, params)
 	if len(args) == 0 {
 		return fmt.Errorf("invalid command statement")
@@ -95,13 +95,13 @@ func processCmd(params []string, interact bool, conf *config) error {
 		return processCmdMacro(cmdName, cmdArgs, interact, conf)
 	}
 
-	if conf.flags&flagVerbose != 0 {
+	if conf.Verbose {
 		log.Printf("executing command: %s %s", cmdName, strings.Join(cmdArgs, " "))
 	}
 
 	exec := func() error {
 		cmd := exec.Command(cmdName, cmdArgs...)
-		cmd.Dir = conf.dstDir
+		cmd.Dir = conf.DstDir
 		if interact {
 			cmd.Stderr = os.Stderr
 			cmd.Stdout = os.Stdout
@@ -118,7 +118,7 @@ func processCmd(params []string, interact bool, conf *config) error {
 	return exec()
 }
 
-func processCmdWithReturn(params []string, conf *config) (string, error) {
+func processCmdWithReturn(params []string, conf *Config) (string, error) {
 	args := appendExpEnv(nil, params)
 	if len(args) == 0 {
 		return "", fmt.Errorf("invalid command statement")
@@ -134,14 +134,14 @@ func processCmdWithReturn(params []string, conf *config) (string, error) {
 		return "", processCmdMacro(cmdName, cmdArgs, false, conf)
 	}
 
-	if conf.flags&flagVerbose != 0 {
+	if conf.Verbose {
 		log.Printf("executing command (with return): %s %s", cmdName, strings.Join(cmdArgs, " "))
 	}
 
 	exec := func() (string, error) {
 		var stdout bytes.Buffer
 		cmd := exec.Command(cmdName, cmdArgs...)
-		cmd.Dir = conf.dstDir
+		cmd.Dir = conf.DstDir
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = &stdout
 		cmd.Stdin = os.Stdin

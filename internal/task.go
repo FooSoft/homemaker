@@ -20,7 +20,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package internal
 
 import (
 	"fmt"
@@ -40,10 +40,10 @@ type task struct {
 	Templates [][]string
 }
 
-func (t *task) deps(conf *config) []string {
+func (t *task) deps(conf *Config) []string {
 	deps := t.Deps
 
-	if conf.flags&flagNoCmds == 0 {
+	if !conf.Nocmds {
 		for _, currCmd := range t.Cmds {
 			deps = append(deps, findCmdDeps(currCmd, conf)...)
 		}
@@ -52,10 +52,10 @@ func (t *task) deps(conf *config) []string {
 	return deps
 }
 
-func (t *task) process(conf *config) error {
+func (t *task) process(conf *Config) error {
 	for _, currTask := range t.deps(conf) {
 		currTask = os.ExpandEnv(currTask)
-		if err := processTask(currTask, conf); err != nil {
+		if err := ProcessTask(currTask, conf); err != nil {
 			return err
 		}
 	}
@@ -66,7 +66,7 @@ func (t *task) process(conf *config) error {
 		}
 	}
 
-	if conf.flags&flagNoCmds == 0 {
+	if !conf.Nocmds {
 		for _, currCmd := range t.CmdsPre {
 			if err := processCmd(currCmd, true, conf); err != nil {
 				return err
@@ -80,7 +80,7 @@ func (t *task) process(conf *config) error {
 		}
 	}
 
-	if conf.flags&flagNoLinks == 0 {
+	if !conf.Nolinks {
 		for _, currLink := range t.Links {
 			if err := processLink(currLink, conf); err != nil {
 				return err
@@ -88,7 +88,7 @@ func (t *task) process(conf *config) error {
 		}
 	}
 
-	if conf.flags&flagNoTemplates == 0 {
+	if !conf.Notemplates {
 		for _, currTmpl := range t.Templates {
 			if err := processTemplate(currTmpl, conf); err != nil {
 				return err
@@ -96,7 +96,7 @@ func (t *task) process(conf *config) error {
 		}
 	}
 
-	if conf.flags&flagNoCmds == 0 {
+	if !conf.Nocmds {
 		for _, currCmd := range t.CmdsPost {
 			if err := processCmd(currCmd, true, conf); err != nil {
 				return err
@@ -107,7 +107,7 @@ func (t *task) process(conf *config) error {
 	return nil
 }
 
-func (t *task) skippable(conf *config) bool {
+func (t *task) skippable(conf *Config) bool {
 	for _, currCnd := range t.Accepts {
 		if err := processCmd(currCnd, false, conf); err != nil {
 			return true
@@ -123,22 +123,32 @@ func (t *task) skippable(conf *config) bool {
 	return false
 }
 
-func processTask(taskName string, conf *config) error {
-	for _, tn := range makeVariantNames(taskName, conf.variant) {
+// Entry point to process a task given a name and the full config file
+func ProcessTask(taskName string, conf *Config) error {
+	log.Printf("Execute task %#v", taskName)
+
+	conf.digest()
+	conf.setEnv()
+	os.Setenv("HM_TASK", taskName)
+
+	for _, tn := range makeVariantNames(taskName, conf.Variant) {
+		if conf.Verbose {
+			log.Printf("starting task: %s", tn)
+		}
 		t, ok := conf.Tasks[tn]
 		if !ok {
 			continue
 		}
 
 		if conf.handled[tn] || t.skippable(conf) {
-			if conf.flags&flagVerbose != 0 {
+			if conf.Verbose {
 				log.Printf("skipping task: %s", tn)
 			}
 
 			return nil
 		}
 
-		if conf.flags&flagVerbose != 0 {
+		if conf.Verbose {
 			log.Printf("processing task: %s", tn)
 		}
 

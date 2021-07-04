@@ -20,44 +20,45 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package main
+package internal
 
 import (
-	"fmt"
-	"log"
 	"os"
-	"strings"
 )
 
-func processEnv(env []string, conf *config) error {
-	args := appendExpEnv(nil, env)
+// Config stores the run configurtion
+type Config struct {
+	Tasks   map[string]task
+	Macros  map[string]macro
+	File    string
+	SrcDir  string `mapstructure:"home-src"`
+	DstDir  string `mapstructure:"home-dst"`
+	Variant string
 
-	var value string
-	switch {
-	case len(args) == 0:
-		return fmt.Errorf("invalid environment statement")
-	case len(args) == 1:
-		if conf.flags&flagVerbose != 0 {
-			log.Printf("unsetting variable: %s", args[0])
-		}
-		os.Unsetenv(args[0])
-		return nil
-	default:
-		if strings.HasPrefix(args[1], "!") {
-			var err error
-			args[1] = strings.TrimLeft(args[1], "!")
-			if value, err = processCmdWithReturn(args[1:], conf); err != nil {
-				return err
-			}
-		} else {
-			value = strings.Join(args[1:], ",")
-		}
+	Clobber     bool
+	Force       bool
+	Verbose     bool
+	Nocmds      bool
+	Nolinks     bool
+	Notemplates bool
+	Unlink      bool
+
+	handled map[string]bool
+}
+
+func (c *Config) digest() {
+	c.handled = make(map[string]bool)
+	c.SrcDir = makeAbsPath(c.SrcDir)
+	c.DstDir = makeAbsPath(c.DstDir)
+
+	if c.Unlink {
+		c.Nocmds = true
 	}
+}
 
-	if conf.flags&flagVerbose != 0 {
-		log.Printf("setting variable %s to %s", args[0], value)
-	}
-
-	os.Setenv(args[0], value)
-	return nil
+func (c *Config) setEnv() {
+	os.Setenv("HM_CONFIG", c.File)
+	os.Setenv("HM_SRC", c.SrcDir)
+	os.Setenv("HM_DEST", c.DstDir)
+	os.Setenv("HM_VARIANT", c.Variant)
 }
