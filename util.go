@@ -26,7 +26,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 )
@@ -78,7 +77,7 @@ func cleanPath(loc string, flags int) (bool, error) {
 }
 
 func createPath(loc string, flags int, mode os.FileMode) error {
-	parentDir := path.Dir(loc)
+	parentDir := filepath.Dir(loc)
 
 	if _, err := os.Stat(parentDir); os.IsNotExist(err) {
 		if flags&flagForce != 0 || prompt("force create path", parentDir) {

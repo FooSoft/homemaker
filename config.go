@@ -26,7 +26,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"path"
+	"path/filepath"
 
 	"github.com/naoina/toml"
 	"gopkg.in/yaml.v2"
@@ -50,7 +50,7 @@ func newConfig(filename string) (*config, error) {
 	}
 
 	conf := &config{handled: make(map[string]bool)}
-	switch path.Ext(filename) {
+	switch filepath.Ext(filename) {
 	case ".json":
 		if err := json.Unmarshal(bytes, &conf); err != nil {
 			return nil, err

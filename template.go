@@ -26,7 +26,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"text/template"
@@ -79,13 +79,13 @@ func processTemplate(params []string, conf *config) (err error) {
 	}
 
 	srcPathAbs := srcPath
-	if !path.IsAbs(srcPathAbs) {
-		srcPathAbs = path.Join(conf.srcDir, srcPath)
+	if !filepath.IsAbs(srcPathAbs) {
+		srcPathAbs = filepath.Join(conf.srcDir, srcPath)
 	}
 
 	dstPathAbs := dstPath
-	if !path.IsAbs(dstPathAbs) {
-		dstPathAbs = path.Join(conf.dstDir, dstPath)
+	if !filepath.IsAbs(dstPathAbs) {
+		dstPathAbs = filepath.Join(conf.dstDir, dstPath)
 	}
 
 	if _, err = os.Stat(srcPathAbs); os.IsNotExist(err) {
