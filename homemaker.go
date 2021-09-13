@@ -28,6 +28,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 )
 
 const (
@@ -50,7 +51,7 @@ func usage() {
 
 func main() {
 	taskName := flag.String("task", "default", "name of task to execute")
-	dstDir := flag.String("dest", os.Getenv("HOME"), "target directory for tasks")
+	dstDir := flag.String("dest", "", "target directory for tasks")
 	force := flag.Bool("force", true, "create parent directories to target")
 	clobber := flag.Bool("clobber", false, "delete files and directories at target")
 	verbose := flag.Bool("verbose", false, "verbose output")
@@ -92,6 +93,10 @@ func main() {
 		conf, err := newConfig(confFile)
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		if strings.TrimSpace(*dstDir) == "" {
+			*dstDir, _ = os.UserHomeDir()
 		}
 
 		conf.srcDir = makeAbsPath(flag.Arg(1))
