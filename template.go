@@ -96,8 +96,12 @@ func processTemplate(params []string, conf *config) (err error) {
 		return err
 	}
 
-	if err = try(func() error { return cleanPath(dstPathAbs, conf.flags) }); err != nil {
+	pathCleaned, err := cleanPath(dstPathAbs, conf.flags)
+	if err != nil {
 		return err
+	}
+	if !pathCleaned {
+		return nil
 	}
 
 	if conf.flags&flagVerbose != 0 {
