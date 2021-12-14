@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -45,6 +46,52 @@ func makeAbsPath(path string) string {
 	}
 
 	return path
+}
+
+func cleanPath(loc string, flags int) (bool, error) {
+	if info, _ := os.Lstat(loc); info != nil {
+		if info.Mode()&os.ModeSymlink == 0 {
+			shouldContinue := false
+			if flags&flagClobber == 0 {
+				shouldContinue = prompt("clobber path", loc)
+			}
+			if flags&flagClobber != 0 || shouldContinue {
+				if flags&flagVerbose != 0 {
+					log.Printf("clobbering path: %s", loc)
+				}
+				if err := try(func() error { return os.RemoveAll(loc) }) ; err != nil {
+					return false, err
+				}
+			} else {
+				return false, nil
+			}
+		} else {
+			if flags&flagVerbose != 0 {
+				log.Printf("removing symlink: %s", loc)
+			}
+			if err := try(func() error { return os.Remove(loc) }); err != nil {
+				return false, err
+			}
+		}
+	}
+	return true, nil
+}
+
+func createPath(loc string, flags int, mode os.FileMode) error {
+	parentDir := path.Dir(loc)
+
+	if _, err := os.Stat(parentDir); os.IsNotExist(err) {
+		if flags&flagForce != 0 || prompt("force create path", parentDir) {
+			if flags&flagVerbose != 0 {
+				log.Printf("force creating path: %s", parentDir)
+			}
+			if err := os.MkdirAll(parentDir, mode); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func makeVariantNames(name, variant string) []string {

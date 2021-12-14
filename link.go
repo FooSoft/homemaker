@@ -30,47 +30,6 @@ import (
 	"strconv"
 )
 
-func cleanPath(loc string, flags int) error {
-	if info, _ := os.Lstat(loc); info != nil {
-		if info.Mode()&os.ModeSymlink == 0 {
-			if flags&flagClobber != 0 || prompt("clobber path", loc) {
-				if flags&flagVerbose != 0 {
-					log.Printf("clobbering path: %s", loc)
-				}
-				if err := os.RemoveAll(loc); err != nil {
-					return err
-				}
-			}
-		} else {
-			if flags&flagVerbose != 0 {
-				log.Printf("removing symlink: %s", loc)
-			}
-			if err := os.Remove(loc); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func createPath(loc string, flags int, mode os.FileMode) error {
-	parentDir := path.Dir(loc)
-
-	if _, err := os.Stat(parentDir); os.IsNotExist(err) {
-		if flags&flagForce != 0 || prompt("force create path", parentDir) {
-			if flags&flagVerbose != 0 {
-				log.Printf("force creating path: %s", parentDir)
-			}
-			if err := os.MkdirAll(parentDir, mode); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
 func parseLink(params []string) (srcPath, dstPath string, mode os.FileMode, err error) {
 	length := len(params)
 	if length < 1 || length > 3 {
@@ -124,8 +83,12 @@ func processLink(params []string, conf *config) error {
 			return err
 		}
 
-		if err := try(func() error { return cleanPath(dstPathAbs, conf.flags) }); err != nil {
+		pathCleaned, err := cleanPath(dstPathAbs, conf.flags)
+		if err != nil {
 			return err
+		}
+		if !pathCleaned {
+			return nil
 		}
 
 		if conf.flags&flagVerbose != 0 {
@@ -141,6 +104,7 @@ func processLink(params []string, conf *config) error {
 			return nil
 		}
 
-		return try(func() error { return cleanPath(dstPathAbs, conf.flags) })
+		_, err = cleanPath(dstPathAbs, conf.flags)
+		return err
 	}
 }
