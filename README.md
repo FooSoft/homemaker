@@ -1,3 +1,12 @@
+<!-- +++
+Area = "projects"
+GitHub = "homemaker"
+Layout = "page"
+Tags = ["dot-files", "golang", "homemaker", "mit license", "yaml", "toml", "json"]
+Description = "Efficiently manage your dot-file configuration settings."
+Collection = "ProjectsComplete"
++++ -->
+
 # Homemaker
 
 Homemaker is a lightweight tool for straightforward and efficient management of \*nix configuration files found in the
@@ -7,7 +16,7 @@ installation, has no dependencies and makes use of simple configuration file str
 [make](https://en.wikipedia.org/wiki/Make_%28software%29) to generate symlinks and execute system commands to aid in
 configuring a new system for use.
 
-![](https://foosoft.net/projects/homemaker/img/demo.gif)
+![](img/demo.gif)
 
 ## Table of Contents
 
@@ -71,15 +80,7 @@ If you already have the Go environment and toolchain set up, you can get the lat
 $ go get github.com/FooSoft/homemaker
 ```
 
-Otherwise, you can use the pre-built binaries for the platforms below:
-
-*   [homemaker\_darwin\_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_darwin_386.tar.gz)
-*   [homemaker\_darwin\_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_darwin_amd64.tar.gz)
-*   [homemaker\_linux\_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_linux_386.tar.gz)
-*   [homemaker\_linux\_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_linux_amd64.tar.gz)
-*   [homemaker\_linux\_arm.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_linux_arm.tar.gz)
-*   [homemaker\_windows\_386.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_windows_386.tar.gz)
-*   [homemaker\_windows\_amd64.tar.gz](https://foosoft.net/projects/homemaker/dl/homemaker_windows_amd64.tar.gz)
+Otherwise, you can use the [pre-built binaries](https://github.com/FooSoft/homemaker/releases) from the project page.
 
 ## Configuration
 
