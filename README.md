@@ -77,7 +77,7 @@ your needs.
 If you already have the Go environment and toolchain set up, you can get the latest version by running:
 
 ```
-$ go get github.com/FooSoft/homemaker
+$ go install foosoft.net/projects/homemaker@latest
 ```
 
 Otherwise, you can use the [pre-built binaries](https://github.com/FooSoft/homemaker/releases) from the project page.
