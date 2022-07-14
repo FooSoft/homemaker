@@ -1,12 +1,3 @@
-<!-- +++
-Area = "projects"
-GitHub = "homemaker"
-Layout = "page"
-Tags = ["dot-files", "golang", "homemaker", "mit license", "yaml", "toml", "json"]
-Description = "Efficiently manage your dot-file configuration settings."
-Collection = "ProjectsComplete"
-+++ -->
-
 # Homemaker
 
 Homemaker is a lightweight tool for straightforward and efficient management of \*nix configuration files found in the
